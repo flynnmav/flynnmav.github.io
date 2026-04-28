@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能物流搬运机器人 | 刘乐延</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .project-hero { text-align: center; padding: 6rem 1.5rem 3rem; }
+    .project-hero h1 { font-size: 2.2rem; color: var(--text); }
+    .project-hero .tags { margin-top: 1rem; }
+    .project-body { max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem 4rem; }
+    .project-body h2 { font-size: 1.3rem; margin: 2rem 0 0.75rem; color: var(--accent); }
+    .project-body p, .project-body li { color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.8; }
+    .project-body ul { padding-left: 1.5rem; }
+    .back-link { display: inline-block; margin-top: 3rem; color: var(--accent); font-weight: 600; }
+    .tech-stack { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+    .tech-stack span { background: var(--accent-light); color: var(--accent); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+  <section class="project-hero">
+    <h1>智能物流搬运机器人</h1>
+    <div class="tags">
+      <div class="tech-stack">
+        <span>STM32F407</span><span>树莓派</span><span>FreeRTOS</span><span>视觉定位</span><span>运动控制</span>
+      </div>
+    </div>
+    <img src="物流机器人.jpg" alt="智能物流搬运机器人" class="project-feature-img">
+  </section>
+
+  <div class="project-body">
+    <h2>项目概述</h2>
+    <p>基于 STM32F407 微控制器与树莓派的智能物流搬运系统，实现从视觉识别、路径规划到物体抓取的全流程自动化。</p>
+
+    <h2>系统架构</h2>
+    <ul>
+      <li><strong>上位机（树莓派）</strong>：运行 OpenCV 实现视觉定位与目标识别，通过串口下发控制指令</li>
+      <li><strong>下位机（STM32F407）</strong>：驱动底盘电机与机械臂舵机，FreeRTOS 多任务实时调度</li>
+      <li><strong>底盘控制</strong>：闭环 PID 速度/位置控制，编码器反馈</li>
+      <li><strong>机械臂</strong>：正逆运动学解算，实现物体定位抓取与放置</li>
+    </ul>
+
+    <h2>技术要点</h2>
+    <ul>
+      <li>FreeRTOS 多任务架构：传感器采集、控制解算、通信处理并行调度</li>
+      <li>上位机图像处理与目标位姿估计</li>
+      <li>底盘轮式里程计 + 闭环运动控制</li>
+      <li>串口通信协议设计与上下位机协同</li>
+    </ul>
+
+    <a href="index.html" class="back-link">&larr; 返回主页</a>
+  </div>
+
+</body>
+</html>
