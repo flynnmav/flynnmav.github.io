@@ -1,9 +1,9 @@
 ---
-title: "关于这个网站"
-description: "介绍 Leyan Liu 个人学术主页与科研博客的内容边界、技术架构和后续维护方式。"
+title: '关于这个网站'
+description: '介绍 Leyan Liu 个人学术主页与科研博客的内容边界、技术架构和后续维护方式。'
 pubDate: 2026-10-22
-category: "Engineering"
-tags: ["Astro", "Web", "Research Notes", "站点说明"]
+category: 'Engineering'
+tags: ['Astro', 'Web', 'Research Notes', '站点说明']
 draft: false
 ---
 

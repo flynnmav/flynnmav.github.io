@@ -15,6 +15,8 @@ npm run test:smoke
 npm run preview
 ```
 
+浏览器回归测试需先运行 `npm run preview -- --port 4322`，另一个终端执行 `npm run test:browser`；默认使用已安装 Edge（Windows）或 Chrome，可用 BROWSER_PATH 指定浏览器。
+
 开发服务器默认 http://localhost:4321；后台服务通过 `npx astro dev status`、`npx astro dev logs`、`npx astro dev stop` 管理。预览用于检查 dist 生产产物。
 
 ## 结构
@@ -37,11 +39,11 @@ npm run preview
 
 ```yaml
 ---
-title: "文章标题"
-description: "简短摘要"
+title: '文章标题'
+description: '简短摘要'
 pubDate: 2026-10-22
-category: "Research Notes"
-tags: ["UAV", "学习笔记"]
+category: 'Research Notes'
+tags: ['UAV', '学习笔记']
 draft: false
 ---
 ```

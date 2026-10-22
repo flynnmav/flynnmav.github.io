@@ -1,9 +1,9 @@
 ---
-title: "无人机轨迹规划与模型预测控制（MPC）学习笔记"
-description: "从离散模型、预测时域、代价函数与约束出发，梳理无人机轨迹规划中模型预测控制的基本框架及其与 PX4 的关系。"
+title: '无人机轨迹规划与模型预测控制（MPC）学习笔记'
+description: '从离散模型、预测时域、代价函数与约束出发，梳理无人机轨迹规划中模型预测控制的基本框架及其与 PX4 的关系。'
 pubDate: 2026-10-22
-category: "Control"
-tags: ["MPC", "UAV", "Trajectory Planning", "PX4", "学习笔记"]
+category: 'Control'
+tags: ['MPC', 'UAV', 'Trajectory Planning', 'PX4', '学习笔记']
 draft: false
 ---
 
@@ -174,4 +174,3 @@ $$
 - [PX4：Offboard 模式](https://docs.px4.io/main/en/flight_modes/offboard.html)
 - [OSQP：MPC 示例](https://osqp.org/docs/examples/mpc.html)
 - [CVXPY：控制问题示例](https://www.cvxpy.org/examples/index.html#control-problems)
-

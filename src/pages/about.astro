@@ -1,5 +1,61 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
-import {site} from '../data/site';
+import { site } from '../data/site';
 ---
-<SiteLayout title="关于"><div class="container page"><div class="eyebrow">ABOUT / 关于</div><h1>你好，我是 Leyan Liu<span class="accent">.</span></h1><p class="lead">关注自主系统、机器人与智能控制，记录从理解原理到工程实践的过程。</p><div class="about-layout"><div><section class="content-section"><h2>个人简介</h2><p>这个网站用于整理我的研究兴趣、科研学习笔记和工程思考。我希望把复杂问题拆解为可理解、可验证的步骤，也持续关注学习型方法与物理系统的结合。</p></section><section class="content-section"><h2>研究兴趣</h2><div class="tags large">{site.interests.map(t=><span>{t}</span>)}</div></section><section class="content-section"><h2>教育背景</h2>{site.education.length?site.education.map(item=><p>{item}</p>):<p class="muted">教育背景信息尚未公开，将在确认后补充。</p>}</section><section class="content-section"><h2>联系方式</h2><p>联系入口与学术账号将在本人确认后公开。</p><a class="text-link" href="/contact/">联系信息 ↗</a></section></div><aside class="sidebar"><div class="eyebrow">TOOLS & TECHNOLOGIES</div><h2>关注的技术栈</h2><div class="tags large">{site.technologies.map(t=><span>{t}</span>)}</div><p class="muted">技术关键词代表关注方向，不作为专业资历或熟练程度声明。</p></aside></div></div></SiteLayout>
+
+<SiteLayout title="关于">
+  <div class="container page">
+    <div class="eyebrow">ABOUT / 关于</div>
+    <h1>
+      你好，我是 Leyan Liu<span class="accent">.</span>
+    </h1>
+    <p class="lead">
+      关注自主系统、机器人与智能控制，记录从理解原理到工程实践的过程。
+    </p>
+    <div class="about-layout">
+      <div>
+        <section class="content-section">
+          <h2>个人简介</h2>
+          <p>
+            这个网站用于整理我的研究兴趣、科研学习笔记和工程思考。我希望把复杂问题拆解为可理解、可验证的步骤，也持续关注学习型方法与物理系统的结合。
+          </p>
+        </section>
+        <section class="content-section">
+          <h2>研究兴趣</h2>
+          <div class="tags large">
+            {site.interests.map((t) => (
+              <span>{t}</span>
+            ))}
+          </div>
+        </section>
+        <section class="content-section">
+          <h2>教育背景</h2>
+          {site.education.length ? (
+            site.education.map((item) => <p>{item}</p>)
+          ) : (
+            <p class="muted">教育背景信息尚未公开，将在确认后补充。</p>
+          )}
+        </section>
+        <section class="content-section">
+          <h2>联系方式</h2>
+          <p>联系入口与学术账号将在本人确认后公开。</p>
+          <a class="text-link" href="/contact/">
+            联系信息 ↗
+          </a>
+        </section>
+      </div>
+      <aside class="sidebar">
+        <div class="eyebrow">TOOLS & TECHNOLOGIES</div>
+        <h2>关注的技术栈</h2>
+        <div class="tags large">
+          {site.technologies.map((t) => (
+            <span>{t}</span>
+          ))}
+        </div>
+        <p class="muted">
+          技术关键词代表关注方向，不作为专业资历或熟练程度声明。
+        </p>
+      </aside>
+    </div>
+  </div>
+</SiteLayout>
