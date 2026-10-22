@@ -1,0 +1,5 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import {publications} from '../../data/publications';
+---
+<SiteLayout title="学术论文"><div class="container page"><div class="eyebrow">PUBLICATIONS / 学术论文</div><h1>研究，留下可追溯的记录。</h1><p class="lead">论文与相关研究资料将集中整理于此。</p>{publications.length?publications.map(p=><article class="content-section"><h2>{p.title}</h2><p>{p.authors.join(', ')} · {p.venue} · {p.year}</p><p>{p.abstract}</p><div class="tags">{p.doi&&<a href={'https://doi.org/'+p.doi}>DOI ↗</a>}{p.pdf&&<a href={p.pdf}>PDF ↗</a>}{p.github&&<a href={p.github}>GitHub ↗</a>}</div></article>):<div class="empty"><span class="research-symbol">▤</span><h2>暂未公开论文</h2><p>确认后的论文、摘要与资源链接会在这里更新。</p><a class="text-link" href="/blog/">先阅读科研学习笔记 ↗</a></div>}</div></SiteLayout>

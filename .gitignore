@@ -1,2 +1,11 @@
-中期答辩/
-.git/
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.log
+playwright-report/
+test-results/

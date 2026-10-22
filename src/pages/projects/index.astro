@@ -1,0 +1,6 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import {projects} from '../../data/projects';
+---
+<SiteLayout title="研究项目"><div class="container page"><div class="eyebrow">PROJECTS / 研究主题</div><h1>探索，从一个问题开始。</h1><p class="lead">自主飞行、协同规划与机器人学习。当前条目为研究主题，成果与开源资料待完善。</p><div class="project-grid">{projects.map((project,index)=><ProjectCard project={project} index={index}/>)}</div></div></SiteLayout>

@@ -1,0 +1,7 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import {projects} from '../../data/projects';
+export function getStaticPaths(){return projects.map(project=>({params:{slug:project.slug},props:{project}}));}
+const {project}=Astro.props;
+---
+<SiteLayout title={project.name} description={project.summary}><article class="container page narrow"><a class="text-link" href="/projects/">← 所有研究主题</a><p class="eyebrow">{project.status}</p><h1>{project.name}</h1><p class="lead">{project.summary}</p><img class="project-image" src={project.image} width="600" height="490" alt="轨迹规划概念示意图，非实验结果"/><h2>主题介绍</h2><p>{project.details}</p><div class="tags">{project.stack.map(t=><span>{t}</span>)}</div><p class="muted">配图为概念示意，不代表实验或已完成成果。</p>{project.github&&<a class="button" href={project.github}>GitHub ↗</a>}{project.demo&&<a class="button" href={project.demo}>Demo ↗</a>}{!project.github&&!project.demo&&<p>代码与演示尚未公开。</p>}</article></SiteLayout>

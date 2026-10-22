@@ -1,0 +1,6 @@
+---
+import type {Project} from '../data/projects';
+interface Props {project:Project;index:number}
+const {project,index}=Astro.props;
+---
+<article class="project-card"><div class="project-top"><span class="project-number">0{index+1}</span><span class="status">{project.status}</span></div><h3><a href={'/projects/'+project.slug+'/'}>{project.name}</a></h3><p>{project.summary}</p><div class="tags">{project.stack.map(t=><span>{t}</span>)}</div><a class="project-link" href={'/projects/'+project.slug+'/'}>探索主题 <span aria-hidden="true">↗</span></a></article>

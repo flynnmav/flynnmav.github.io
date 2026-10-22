@@ -1,0 +1,5 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import {site} from '../../data/site';
+---
+<SiteLayout title="联系"><div class="container page narrow"><div class="eyebrow">CONTACT / 联系</div><h1>让想法，产生连接。</h1><p class="lead">欢迎围绕自主系统、机器人与智能控制交流。</p><div class="empty"><h2>联系信息待补充</h2><p>公开邮箱与社交账号尚未确认，因此暂不提供联系链接。</p>{site.email&&<a class="text-link" href={'mailto:'+site.email}>邮箱 ↗</a>}{site.github&&<a class="text-link" href={site.github}>GitHub ↗</a>}{site.scholar&&<a class="text-link" href={site.scholar}>Google Scholar ↗</a>}</div></div></SiteLayout>

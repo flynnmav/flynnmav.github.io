@@ -1,0 +1,9 @@
+---
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import PostList from '../../../components/PostList.astro';
+import {getPosts} from '../../../data/posts';
+import {categories} from '../../../data/site';
+export async function getStaticPaths(){const all=await getPosts();const values=categories;return values.map(label=>({params:{slug:label},props:{label,posts:all.filter(p=>p.data.category===label)}}));}
+const {label,posts}=Astro.props;
+---
+<SiteLayout title={label}><div class="container page"><a class="text-link" href="/blog/">← 所有文章</a><p class="eyebrow">CATEGORY / 分类</p><h1>{label}</h1><p class="lead">{posts.length} 篇学习记录</p><PostList posts={posts}/>{!posts.length&&<div class="empty"><h2>这个方向的笔记正在积累。</h2><p>新文章发布后会自动出现在这里。</p></div>}</div></SiteLayout>
