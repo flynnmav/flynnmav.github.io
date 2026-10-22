@@ -1,51 +1,55 @@
-# leyanliu.com DNS 配置与真实检查
+# leyanliu.com DNS 配置实录
 
-记录日期：2026-10-22（Asia/Shanghai）。DNS 管理商由用户确认为 IONOS。未获得 IONOS 控制台会话，未读取完整 zone，未改动任何 DNS。以下为计划记录，不能当作当前配置备份。
+日期：2026-10-22（Asia/Shanghai）。DNS 管理商 IONOS。本人完成登录后，已先备份原记录，再按本人明确批准的清单执行替换。
 
-## 执行顺序
+## 已保存的目标记录
 
-1. 【已完成】在 GitHub 仓库 Settings → Pages 保存自定义域名 `leyanliu.com`。
-2. 本人登录 IONOS → Domains & SSL → leyanliu.com → DNS。
-3. 导出或截图备份现有全部记录；如存在根域/ www 网站冲突，先确认具体删除/覆盖清单再修改。
-4. 只添加所需网站记录；保留所有 NS、MX、SPF、DKIM、DMARC、其他业务子域名，不改 Nameserver、不加通配符。
+| 类型  | 主机 | 值                 | TTL  |
+| ----- | ---- | ------------------ | ---- |
+| A     | @    | 185.199.108.153    | 3600 |
+| A     | @    | 185.199.109.153    | 3600 |
+| A     | @    | 185.199.110.153    | 3600 |
+| A     | @    | 185.199.111.153    | 3600 |
+| CNAME | www  | flynnmav.github.io | 3600 |
 
-## 目标记录
+停用的仅为原 Default Site 服务三条记录：A @=74.208.236.120、AAAA @=2607:f1c0:100f:f000:0:0:0:200、TXT _dep_ws_mutex。原始完整值在交付目录 dns-backup-before.json；修改后快照在 dns-backup-after.json。
 
-| 类型  | Host / 主机 | 值                 | 操作                           |
-| ----- | ----------- | ------------------ | ------------------------------ |
-| A     | @           | 185.199.108.153    | 缺失时添加；已有冲突先确认     |
-| A     | @           | 185.199.109.153    | 同上                           |
-| A     | @           | 185.199.110.153    | 同上                           |
-| A     | @           | 185.199.111.153    | 同上                           |
-| CNAME | www         | flynnmav.github.io | 缺失时添加；同名记录冲突先确认 |
+## 保留且逐条复核的记录
 
-TTL 可使用 IONOS 默认值。若已有 @ 或 www AAAA 指向其他服务，也会影响访问，需先读取并确认处理，不能忽略。若存在 CAA，检查其是否允许 GitHub Pages 使用的证书签发机构；不要盲目删除。账户域名验证 TXT 的名称和值只使用 GitHub 实际显示内容。
+| 类型  | 主机                | 值                                    |
+| ----- | ------------------- | ------------------------------------- |
+| CNAME | _domainconnect      | _domainconnect.ionos.com              |
+| MX    | @                   | mx00.ionos.com，优先级 10             |
+| MX    | @                   | mx01.ionos.com，优先级 10             |
+| TXT   | @                   | v=spf1 include:_spf-us.ionos.com ~all |
+| CNAME | _dmarc              | dmarc.ionos.com                       |
+| CNAME | s1-ionos._domainkey | s1.dkim.ionos.com                     |
+| CNAME | s2-ionos._domainkey | s2.dkim.ionos.com                     |
+| CNAME | autodiscover        | adsredir.ionos.info                   |
 
-依据：[GitHub 自定义域名官方文档](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)。
+以上八条按记录 ID、类型、主机与完整值验证前后相同。未改 Nameserver、未创建通配符、未购买服务。未发现 CAA 答案，没有删除 CAA。
 
-## 本次观测
+## 已核验结果
 
-- 本机 `Resolve-DnsName leyanliu.com -Type A` 返回 `28.0.0.9`，不属于 GitHub Pages 目标地址。这可能受本机 DNS/网络代理影响，不能据此推断 IONOS 完整配置。
-- 本机 `Resolve-DnsName www.leyanliu.com -Type CNAME` 返回 DNS 名称不存在。
-- curl.exe HTTPS 检查因 Windows Schannel `SEC_E_NO_CREDENTIALS` 失败，不能据此认定线上证书无效。
-- DNS 与证书的进一步独立检查见 PROJECT-STATUS.md；未确认线上成功前不宣称域名已部署。
+- IONOS 表内共 13 条记录，目标四条 A 与 www CNAME 均存在。
+- Google Public DNS 独立 DoH 已返回全部四条 GitHub A，www 指向 flynnmav.github.io，旧 AAAA 无答案。
+- GitHub Pages 的 build_type=workflow、cname=leyanliu.com；最终 Actions 构建和部署成功。
+- http://leyanliu.com/ 与 /blog/mpc-notes/ 返回 200，服务器 GitHub.com，确认为新网站。
+- HTTPS 尚未通过证书域名校验；GitHub 启用强制 HTTPS 请求返回 The certificate does not exist yet。当前 https_enforced=false。
 
-## 复查
+## 剩余步骤
+
+等待 GitHub 为根域和 www 签发证书。证书可用后启用 Enforce HTTPS，并验证 HTTP→HTTPS、www→根域、文章链接。DNS TTL 为一小时，部分解析器短时仍可能缓存旧值；不要因此覆盖已正确的记录。
+
+账号级域名所有权验证建议以后在 GitHub Settings → Pages 完成。若生成 TXT，只使用真实值，不编造记录。
 
 ```powershell
 Resolve-DnsName leyanliu.com -Type A
 Resolve-DnsName www.leyanliu.com -Type CNAME
-Resolve-DnsName leyanliu.com -Type CAA
+gh api repos/flynnmav/flynnmav.github.io/pages/health
 gh api repos/flynnmav/flynnmav.github.io/pages
-curl.exe -I https://leyanliu.com
-curl.exe -I http://leyanliu.com
-curl.exe -I https://www.leyanliu.com
+# 证书可用后执行
+gh api --method PUT repos/flynnmav/flynnmav.github.io/pages -F https_enforced=true
 ```
 
-应验证四条 A、www CNAME、首页 200、有效 TLS、HTTP→HTTPS 和 www→主域重定向，以及 /blog/mpc-notes/。DNS/证书延迟时保留配置并稍后复查；无需购买新服务。
-
-## 独立 DNS 与 Pages 复核（最终）
-
-Google Public DNS 的 DoH 查询确认：根域 A 为 74.208.236.120，TTL 3600；www CNAME 查询返回 NXDOMAIN；根域 CAA 无答案。计划在本人确认后替换旧 @ A=74.208.236.120，添加四条 GitHub Pages A，添加 www CNAME=flynnmav.github.io。公共查询不能替代 IONOS 全部 zone 备份。
-
-GitHub Pages 已设置 build_type=workflow、cname=leyanliu.com，Actions 已成功部署；https_enforced=false，等待 DNS 迁移和有效证书。IONOS 管理页实际跳转到登录页，尚未获得授权会话，未修改记录。
+如果需要回滚网站解析，先根据 before 快照确认原三条 Default Site 记录；不得重置整个域名 DNS，以免覆盖邮件等独立服务。

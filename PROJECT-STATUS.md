@@ -33,23 +33,24 @@
 
 Lighthouse JSON 报告保存于交付目录；以上是本地测试，不代表互联网环境得分。首轮 95 分的无障碍问题已修正：文字对比度与链接名称。复测无相关失败项。浏览器测试曾因预览进程退出出现连接拒绝，重启服务后全部复测通过。
 
-## 仍需用户操作：IONOS DNS
+## DNS 已完成，HTTPS 等待证书
 
-- IONOS 管理页面已尝试打开，跳转到账号登录页；尚未获得会话，未读取完整 zone，也未改动 DNS。
-- Google Public DNS 的独立 DoH 查询：leyanliu.com A=`74.208.236.120`（TTL 3600）；www CNAME=NXDOMAIN；根域无 CAA 答案。
-- 本机 Resolve-DnsName 返回的 28.0.0.9 是受本地网络影响的观测，不作为真实 IONOS A 记录。
-- 需要本人登录 IONOS、备份现有记录，确认将旧 @ 网站 A 记录替换为 GitHub Pages 四条 A，添加 www CNAME。保留邮件、NS 和其他业务记录。精确清单见 DNS-CONFIG.md。
-- GitHub Pages 设置已就绪，但域名仍指向旧 IONOS 页面；不能宣称 https://leyanliu.com 已展示新站。
-- 当前 GitHub `https_enforced=false`，待 DNS 正确、证书可用后启用。不是已确认进入证书签发阶段。
-- 域名所有权 TXT 验证推荐完成，必须从账号 Settings → Pages 读取实际值。
+- 本人完成 IONOS 登录，并明确批准了具体 DNS 替换清单。
+- 修改前备份 11 条记录；仅停用 Default Site 的旧 A、旧 AAAA、_dep_ws_mutex TXT。
+- 添加四条 A：185.199.108.153、185.199.109.153、185.199.110.153、185.199.111.153，以及 www CNAME=flynnmav.github.io，TTL 3600。
+- 修改后共 13 条记录；逐条按记录 ID、类型、主机、完整值对比，八条邮件及 Domain Connect 记录完全不变。未修改 Nameserver。
+- DNS 前后快照在交付目录 dns-backup-before.json、dns-backup-after.json；公共 DNS 已查到全部四条 A 和 www CNAME，旧 AAAA 无答案。
+- 最终源码提交 ed5734e6ebe7025cce6d3470996aee64924fa623，Actions #2 构建及发布成功：https://github.com/flynnmav/flynnmav.github.io/actions/runs/39752282520 。默认分支已改 main，master 保留。
+- 自动审批曾阻止在未确认具体清单时打开停用服务端点；收到用户明确批准后，已完成相应操作，该阻塞已解除。
 
 ## 外部访问实测
 
-- https://leyanliu.com：200，Apache，旧域名页面，未包含新 MPC 文章。
-- http://leyanliu.com：200，没有 HTTP→HTTPS 跳转。
-- https://www.leyanliu.com：连接重置。
-- https://flynnmav.github.io/：301 → http://leyanliu.com/。
-- https://flynnmav.github.io/blog/mpc-notes/：301 → http://leyanliu.com/blog/mpc-notes/。
+- http://leyanliu.com/：200，GitHub.com，标题 Leyan Liu · 自主系统与机器人，已显示新站。
+- http://leyanliu.com/blog/mpc-notes/：200，学习笔记正文与 katex-display 公式存在。
+- https://leyanliu.com/ 与 https://www.leyanliu.com/：TLS 域名校验尚未通过，错误 ERR_TLS_CERT_ALTNAME_INVALID。
+- GitHub Pages https_enforced=false；尝试启用时 API 明确返回 The certificate does not exist yet。没有关闭 TLS 校验。
+- HTTP→HTTPS 和 www→HTTPS 根域的最终跳转尚待证书可用后验证；不能宣称 HTTPS 已完成。
+- GitHub 账号级域名所有权 TXT 验证未完成；此项推荐，不影响已成功的 HTTP 部署。
 
 GitHub CLI 在沙箱内曾报告凭据失效；已核实实际原因是 Windows keyring 访问限制。在允许访问本机凭据的执行环境中已认证，无需用户重新登录 GitHub。凭据未写入源码或聊天。
 
