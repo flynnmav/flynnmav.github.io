@@ -22,6 +22,7 @@ try {
       '/',
       '/about/',
       '/projects/',
+      '/code/',
       '/projects/trajectory-mpc/',
       '/blog/',
       '/blog/mpc-notes/',
@@ -39,6 +40,51 @@ try {
       results.push({ width, route, status: response.status(), overflow });
     }
   }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(base + '/code/');
+  const privateNames = [
+    'adaptive-safety-flight',
+    'beetle-omni-isaac',
+    'omni_intercept',
+    'omini_quadrone',
+    'tilt-quadrotor-wrench',
+    'Reinforcement-Learning-based-UAV-Formation-Control',
+    'Interceptor_gazebo-sim-',
+    'ppo',
+    'vision_yolov10',
+    'bambu-fleet-console',
+  ];
+  const privateCards = page.locator(
+    'article.repo-card[data-visibility="private"]',
+  );
+  assert.equal(await privateCards.count(), privateNames.length);
+  assert.equal(await privateCards.locator('a').count(), 0);
+  assert.equal(
+    await page.locator('article.repo-card .repo-private').count(),
+    privateNames.length,
+  );
+  const cardHrefs = await page
+    .locator('article.repo-card a')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('href') || ''));
+  const html = await page.content();
+  for (const name of privateNames) {
+    assert.equal(
+      html.includes('github.com/flynnmav/' + name),
+      false,
+      'private repo linked: ' + name,
+    );
+  }
+  for (const href of cardHrefs) {
+    assert.ok(
+      href.startsWith('https://github.com/flynnmav/') ||
+        href === 'https://flynnmav.github.io/gc-lit-review/',
+      href,
+    );
+  }
+  assert.ok(cardHrefs.includes('https://github.com/flynnmav/flightvla-guard'));
+  assert.ok(
+    (await page.locator('a[href="https://github.com/flynnmav"]').count()) > 0,
+  );
   await page.goto(base + '/blog/mpc-notes/');
   const math = {
     all: await page.locator('.katex').count(),

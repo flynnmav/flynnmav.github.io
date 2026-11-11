@@ -99,6 +99,7 @@ const canonical = new URL(
       </div>
       <div>
         <a href="/rss.xml">RSS 订阅 ↗</a>
+        {site.github && <a href={site.github}>GitHub ↗</a>}
         <a href="/contact/">联系</a>
         <p>© {new Date().getFullYear()} Leyan Liu · Built with Astro</p>
       </div>

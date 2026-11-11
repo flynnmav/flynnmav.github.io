@@ -959,9 +959,10 @@ p {
   .header nav {
     order: 3;
     width: 100%;
-    justify-content: space-between;
-    gap: 2px;
-    overflow: auto;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+    overflow: visible;
   }
   .header nav a {
     padding: 7px 8px;
@@ -1139,6 +1140,41 @@ p {
     font-size: 10px;
     letter-spacing: 1.2px;
   }
+}
+/* ---------- 开源与代码 ---------- */
+.repo-profile {
+  margin-top: 4px;
+}
+.repo-group {
+  margin-top: 56px;
+}
+.repo-card h3 {
+  min-height: 0;
+  overflow-wrap: anywhere;
+  font-size: 18px;
+}
+.repo-card .repo-tags {
+  margin-top: auto;
+}
+.repo-tags span,
+.repo-stars {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0;
+}
+.repo-stars {
+  background: var(--bluebg);
+}
+.repo-private {
+  background: var(--yellowbg);
+}
+.repo-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.repo-links .project-link {
+  flex: 1;
+  margin-top: 18px;
 }
 @media (prefers-reduced-motion: reduce) {
   html {

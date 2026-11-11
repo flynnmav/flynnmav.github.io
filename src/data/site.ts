@@ -7,7 +7,7 @@ export const site = {
     'Leyan Liu 的个人学术主页与科研学习笔记，关注无人机自主系统、机器人学、轨迹规划与智能控制。',
   // 仅填写本人确认并愿意公开的信息；空值不生成链接。
   email: '',
-  github: '',
+  github: 'https://github.com/flynnmav',
   scholar: '',
   avatar: '',
   education: [] as string[],
@@ -35,6 +35,7 @@ export const navigation = [
   ['/', '首页'],
   ['/about/', '关于'],
   ['/projects/', '研究项目'],
+  ['/code/', '代码'],
   ['/rl/', '强化学习'],
   ['/blog/', '博客'],
   ['/publications/', '论文'],
