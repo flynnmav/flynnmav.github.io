@@ -33,10 +33,15 @@ const app=document.getElementById('app');
 
 /* ---------- 导航 ---------- */
 function nav(){const t=UI.ThemeToggle();
-  const el=h('nav',{class:'nav'},h('a',{class:'logo',href:'#/'},h('span',{class:'logo-mark'},h('i'),h('i'),h('i')),'RL·Zero'),
-    h('div',{class:'nav-links'},h('a',{href:'#/',onclick:e=>{goGallery(e);}},'章节'),h('a',{href:'#/ch/1'},'从第 1 章开始'),h('a',{href:'#/ch/16'},'演化图'),h('a',{href:'#/ch/17'},'学习路线'),h('a',{href:'#refs',onclick:e=>{e.preventDefault();goHome('refs');}},'参考资料')),
-    h('div',{class:'nav-sp'}),t,h('a',{class:'btn-pill btn-white nav-cta',href:'#/ch/1'},'开始学习 →'));
-  addEventListener('scroll',()=>el.classList.toggle('scrolled',scrollY>20),{passive:true});document.body.prepend(el);}
+  const item=(href,label,opts)=>h('a',Object.assign({href},opts||{}),label);
+  const el=h('header',{class:'site-header'},h('div',{class:'nav-shell'},
+    h('a',{class:'brand',href:'/','aria-label':'Leyan Liu 首页'},h('span',{class:'monogram','aria-hidden':'true'},'L.'),'Leyan Liu',h('span',{class:'brand-dot','aria-hidden':'true'},'/')),
+    h('nav',{'aria-label':'主导航'},
+      item('/','首页'),item('/about/','关于'),item('/projects/','研究项目'),
+      item('#/','强化学习',{'aria-current':'page',onclick:e=>{if(location.pathname.startsWith('/rl')){e.preventDefault();goHome('gallery');}}}),
+      item('/blog/','博客'),item('/publications/','论文')),
+    t,h('a',{class:'contact-nav',href:'/contact/'},'联系 ↗')));
+  document.body.prepend(el);}
 function goGallery(e){e&&e.preventDefault();goHome('gallery');}
 function goHome(anchor){if(location.hash&&location.hash!=='#/'&&location.hash!=='#'){pendingAnchor=anchor;location.hash='#/';}else{const el=document.getElementById(anchor);el&&el.scrollIntoView({behavior:RM?'auto':'smooth'});}}
 let pendingAnchor=null;
@@ -51,16 +56,20 @@ function home(){
   const totalDemos=chapters.reduce((a,c)=>a+c.demos,0),totalQ=chapters.reduce((a,c)=>a+c.quiz,0),totalEq=chapters.reduce((a,c)=>a+c.eqs,0);
   const stat=(n,l)=>{const b=h('b',null,'0');const el=h('div',null,b,h('span',null,l));let done=false;el.addEventListener('revealed',()=>{if(done)return;done=true;const t0=performance.now();const f=now=>{const k=clamp((now-t0)/1400,0,1);b.textContent=Math.round(n*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(f);};requestAnimationFrame(f);});return reveal(el);};
   const hl=h('h1',{class:'headline'},
-    h('span',{class:'line'},h('span',{class:'zh'},'强化学习 ',h('em',null,'从零'))),
-    h('span',{class:'line'},h('span',{class:'zh'},'到 ',h('span',{class:'gwrap','data-t':'前沿'},h('span',{class:'gword'},'前沿')))));
-  const hero=h('section',{class:'hero'},cv,
-    h('div',{class:'badge'},h('span',{class:'dot'}),'全 17 章 · '+totalDemos+' 个可交互实验 · 离线可用'),
-    h('div',{class:'h-kicker'},'Reinforcement Learning — From Zero To Frontier'),hl,
-    h('p',{class:'h-sub'},'从“什么是奖励”讲到 PPO、SAC、RLHF、DPO 与 GRPO。每个公式逐符号翻译成大白话，每章都有手算例子、伪代码、常见误区、小测，以及在浏览器里实时计算的动手实验。'),
-    h('div',{class:'h-roll'},h('span',null,'强化学习 ='),rw),
-    h('div',{class:'h-ctas'},h('a',{class:'btn-pill btn-white',href:'#/ch/1'},'开始学习 →'),h('a',{class:'btn-pill btn-ghost',href:'#gallery',onclick:goGallery},'浏览 17 章')),
-    h('div',{class:'h-stats'},stat(17,'章'),stat(totalDemos,'个动手实验'),stat(totalQ,'道小测'),stat(totalEq,'个公式')),
-    h('div',{class:'scroll-cue'}));
+    h('span',{class:'line'},h('span',{class:'zh'},'强化学习',h('span',{class:'accent-dot'},'.'))),
+    h('span',{class:'line'},h('span',{class:'zh'},'从零到前沿')));
+  const hero=h('section',{class:'hero site-hero'},
+    h('div',{class:'hero-copy'},
+      h('div',{class:'eyebrow'},h('span',{class:'blue-line'}),'17 CHAPTERS / INTERACTIVE'),
+      h('p',{class:'hero-intro'},'交互式教程'),hl,
+      h('p',{class:'h-sub'},'从“什么是奖励”讲到 PPO、SAC、RLHF、DPO 与 GRPO。每个公式逐符号翻译成大白话，每章都有手算例子、伪代码、常见误区、小测，以及在浏览器里实时计算的动手实验。'),
+      h('div',{class:'h-roll'},h('span',null,'强化学习 ='),rw),
+      h('div',{class:'h-ctas'},h('a',{class:'button',href:'#/ch/1'},'开始学习 ↗'),h('a',{class:'text-link',href:'#gallery',onclick:goGallery},'浏览 17 章 →')),
+      h('div',{class:'h-stats'},stat(17,'章'),stat(totalDemos,'个动手实验'),stat(totalQ,'道小测'),stat(totalEq,'个公式'))),
+    h('div',{class:'hero-visual'},
+      h('div',{class:'visual-label'},'FIG. 01 / LIVE FIELD'),
+      cv,
+      h('div',{class:'visual-caption'},h('span',{class:'live-dot'}),'从试错到策略',h('span',null,'01 — 17'))));
   frag.appendChild(hero);PV.brain(cv);
   // 标题逐行上浮
   if(!RM)[...hl.querySelectorAll('.line>span')].forEach((sp,i)=>sp.animate([{transform:'translateY(105%)',filter:'blur(8px)'},{transform:'none',filter:'blur(0)'}],{duration:1100,delay:150+i*140,easing:'cubic-bezier(.2,.9,.2,1)',fill:'backwards'}));
@@ -78,7 +87,7 @@ function home(){
   frag.appendChild(footer());
   return frag;
 }
-function footer(){return h('footer',null,h('div',{class:'marquee',style:{margin:'0 0 40px'}},h('div',null,...[0,1].flatMap(()=>['Trial','Error','Reward','Return','Policy','Value','Explore','Exploit'].map(x=>h('span',null,x))))),'强化学习完全解析 · 从零到前沿 — 单文件夹离线网站，所有实验在你的浏览器里实时计算。',h('br'),'字体：Barlow Condensed（SIL OFL 1.1，已内嵌）；中文使用系统字体。');}
+function footer(){return h('footer',null,h('div',{class:'marquee',style:{margin:'0 0 40px'}},h('div',null,...[0,1].flatMap(()=>['Trial','Error','Reward','Return','Policy','Value','Explore','Exploit'].map(x=>h('span',null,x))))),'强化学习完全解析 · 从零到前沿 — 交互都在浏览器里实时计算。',h('br'),h('a',{href:'/'},'返回 Leyan Liu 首页'));}
 
 /* ---------- 画廊：筛选芯片 + 实时卡片 + 原位展开（FLIP） ---------- */
 function gallery(){
@@ -208,13 +217,13 @@ function quiz(b,ctx){
   const el=h('div',{class:'quiz'},h('div',{class:'qh'},h('b',null,'Quiz'),h('span',null,'本章小测 · 点选答案立刻判分'),score));
   b.items.forEach((it,qi)=>{const exp=h('div',{class:'exp'});const opts=h('div',{class:'opts'});
     it.options.forEach((op,oi)=>{const bt=h('button',{class:'opt'},String.fromCharCode(65+oi)+'. '+op);bt.addEventListener('click',()=>{if(oi===it.answer){bt.classList.add('right');[...opts.children].forEach(x=>x.disabled=true);exp.innerHTML='<b>答对了。</b>'+it.explain;exp.classList.add('show');right.add(qi);score.textContent=right.size+' / '+b.items.length;burst(el,bt);
-        if(right.size===b.items.length){Progress.mark(ctx.c.id);score.textContent='✓ 全部答对';score.style.background='linear-gradient(90deg,#ff3fbf,#a855f7,#22c55e)';score.style.color='#fff';}}
+        if(right.size===b.items.length){Progress.mark(ctx.c.id);score.textContent='✓ 全部答对';score.style.background='#2f9e5b';score.style.color='#fff';}}
       else{bt.classList.remove('wrong');void bt.offsetWidth;bt.classList.add('wrong');exp.innerHTML='<b>还不对，再想想。</b>';exp.classList.add('show');}});opts.appendChild(bt);});
     el.appendChild(h('div',{class:'q'},h('div',{class:'qq'},(qi+1)+'. '+it.q),opts,exp));});
   return el;
 }
 function burst(host,from){if(RM)return;const r=host.getBoundingClientRect(),fr=from.getBoundingClientRect();const cv=h('canvas',{class:'confetti'});host.appendChild(cv);const d=Math.min(2,devicePixelRatio||1);cv.width=r.width*d;cv.height=r.height*d;cv.style.width=r.width+'px';cv.style.height=r.height+'px';
-  const c=cv.getContext('2d');c.scale(d,d);const ox=fr.left-r.left+fr.width/2,oy=fr.top-r.top+fr.height/2;const cols=['#ff3fbf','#a855f7','#22c55e','#ffc49b','#5eead4'];
+  const c=cv.getContext('2d');c.scale(d,d);const ox=fr.left-r.left+fr.width/2,oy=fr.top-r.top+fr.height/2;const cols=['#2f9e5b','#2f6f9e','#c46b58','#6d5cae','#c4922a'];
   const ps=Array.from({length:46},()=>{const a=Math.random()*Math.PI*2,sp=120+Math.random()*260;return {x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-120,r:Math.random()*6.28,vr:(Math.random()-.5)*12,c:cols[Math.floor(Math.random()*5)],l:0};});
   const stop=Loop.add(dt=>{c.clearRect(0,0,r.width,r.height);let alive=false;ps.forEach(p=>{p.l+=dt;if(p.l>1.4)return;alive=true;p.vy+=520*dt;p.vx*=.985;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;c.save();c.translate(p.x,p.y);c.rotate(p.r);c.globalAlpha=1-p.l/1.4;c.fillStyle=p.c;c.fillRect(-4,-2,8,4);c.restore();});if(!alive){stop();cv.remove();}},null,false);}
 
@@ -249,7 +258,7 @@ function route(){cleanup.forEach(f=>f());cleanup=[];Loop.clearScoped();Timers.cl
   const page=m?chapterPage(+m[1]):home();app.appendChild(page);
   if(pendingAnchor){const a=pendingAnchor;pendingAnchor=null;setTimeout(()=>{const el=document.getElementById(a);el&&el.scrollIntoView({behavior:'auto'});},30);}else scrollTo(0,0);
   document.title=m?`第 ${m[1]} 章 · ${byN(+m[1])?byN(+m[1]).m.t:''} — 强化学习 从零到前沿`:'强化学习 从零到前沿 · 17 章交互式教程';}
-try{if(localStorage.getItem('rl-theme')==='light')document.documentElement.classList.add('light');}catch(e){}
+try{if(localStorage.getItem('rl-theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}
 nav();addEventListener('hashchange',route);route();
 window.RLAPP={chapters,byN};
 })();

@@ -40,7 +40,7 @@ const revealIO=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersect
 function reveal(el,delay=0){el.classList.add('rv');if(delay)el.style.transitionDelay=delay+'ms';if(RM){el.classList.add('in');return el;}revealIO.observe(el);return el;}
 
 /* ---- 主题色读取（canvas 用） ---- */
-function isLight(){return document.documentElement.classList.contains('light');}
+function isLight(){return !document.documentElement.classList.contains('dark');}
 function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 
 /* ---- canvas 高清适配 ---- */

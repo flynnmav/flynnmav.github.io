@@ -22,11 +22,11 @@ function TickSlider(o){
   const xOf=v=>pad+(v-min)/(max-min)*(W-2*pad);
   const vOf=x=>min+clamp((x-pad)/(W-2*pad),0,1)*(max-min);
   function paint(){
-    const accent=isLight()?'#121212':'#ffffff';
+    const accent=isLight()?'#2b2d42':'#f4efe8';
     for(let i=0;i<N;i++){const x=pad+i/(N-1)*(W-2*pad);const d=(x-pos)/34;const g=Math.exp(-d*d);
       const t=ticks[i];t.style.left=x+'px';t.style.height=(9+30*g)+'px';
       t.style.opacity=(x<=pos? .55+.45*g : .16+.7*g).toFixed(3);
-      t.style.background=x<=pos?`linear-gradient(180deg,#ff7ea8,#ffb38a)`:accent;}
+      t.style.background=x<=pos?'#2f9e5b':accent;}
     const tilt=clamp(vel*0.012,-14,14);
     thumb.style.transform=`translateX(${pos}px)`;pill.style.transform=`translateX(-50%) rotate(${tilt}deg) scale(${drag?1.08:1})`;
   }
@@ -44,6 +44,7 @@ function TickSlider(o){
   track.addEventListener('pointerup',up);track.addEventListener('pointercancel',up);
   track.addEventListener('keydown',e=>{let d=0;if(e.key==='ArrowRight'||e.key==='ArrowUp')d=step;if(e.key==='ArrowLeft'||e.key==='ArrowDown')d=-step;if(!d)return;e.preventDefault();setValue(value+d);if(o.commitOnRelease&&o.onInput)o.onInput(value);o.onChange&&o.onChange(value);});
   const ro=new ResizeObserver(()=>{W=track.clientWidth||300;pos=xOf(value);sp.snap(pos);lastPos=pos;paint();});ro.observe(track);
+  addEventListener('themechange',()=>paint());
   el.setValue=setValue;el.getValue=()=>value;
   return el;
 }
@@ -61,7 +62,7 @@ function GooStepper(o){
     s('feColorMatrix',{in:'b',mode:'matrix',values:'1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8',result:'g'}),
     s('feComposite',{in:'SourceGraphic',in2:'g',operator:'atop'}));
   const grad=s('linearGradient',{id:id+'g',x1:0,y1:0,x2:W,y2:0,gradientUnits:'userSpaceOnUse'},
-    s('stop',{offset:'0','stop-color':'#ff3fbf'}),s('stop',{offset:'.5','stop-color':'#a855f7'}),s('stop',{offset:'1','stop-color':'#22c55e'}));
+    s('stop',{offset:'0','stop-color':'#1f7a42'}),s('stop',{offset:'.55','stop-color':'#14663a'}),s('stop',{offset:'1','stop-color':'#c46b58'}));
   const glow=s('filter',{id:id+'gl',x:'-30%',y:'-80%',width:'160%',height:'260%'},s('feGaussianBlur',{stdDeviation:'7'}));
   defs.append(filt,grad,glow);svg.appendChild(defs);
   const base=s('g');labels.forEach((l,i)=>base.appendChild(s('rect',{x:xs[i]+1,y:1,width:widths[i]-2,height:H-2,rx:(H-2)/2,fill:'var(--chip)',stroke:'var(--line2)'})));
@@ -109,14 +110,14 @@ function ThemeToggle(){
   const P=(light?sun:moon).map(p=>({x:p[0],y:p[1],vx:0,vy:0,d:0}));
   const knobS=new Spring(light?36:0,{stiffness:260,damping:17});knob.style.transform=`translateX(${knobS.x}px)`;
   let active=0;
-  function draw(){ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,S,S);ctx.fillStyle=light?'#f59e0b':'#c7d2fe';
+  function draw(){ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,S,S);ctx.fillStyle=light?'#2f9e5b':'#afd3ee';
     for(const p of P){ctx.globalAlpha=.95;ctx.fillRect(p.x-.7,p.y-.7,1.4,1.4);}ctx.globalAlpha=1;}
   function tick(dt){if(active<=0)return;active-=dt;const tg=light?sun:moon;
     P.forEach((p,i)=>{if(p.d>0){p.d-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96;return;}const t=tg[i];const fx=(t[0]-p.x)*180,fy=(t[1]-p.y)*180;p.vx+=(fx-p.vx*16)*dt;p.vy+=(fy-p.vy*16)*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;});
     knobS.step(dt);knob.style.transform=`translateX(${knobS.x}px) rotate(${knobS.x*5}deg)`;draw();}
   Loop.add(tick,null,false);draw();
   function apply(toLight,ev){
-    const doFlip=()=>{document.documentElement.classList.toggle('light',toLight);try{localStorage.setItem('rl-theme',toLight?'light':'dark');}catch(e){}window.dispatchEvent(new Event('themechange'));};
+    const doFlip=()=>{document.documentElement.classList.toggle('dark',!toLight);try{localStorage.setItem('rl-theme',toLight?'light':'dark');}catch(e){}window.dispatchEvent(new Event('themechange'));};
     const r=btn.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;
     if(document.startViewTransition&&!RM){const vt=document.startViewTransition(doFlip);vt.ready.then(()=>{const R=Math.hypot(Math.max(cx,innerWidth-cx),Math.max(cy,innerHeight-cy));
       document.documentElement.animate({clipPath:[`circle(0px at ${cx}px ${cy}px)`,`circle(${R}px at ${cx}px ${cy}px)`]},{duration:750,easing:'cubic-bezier(.6,0,.2,1)',pseudoElement:'::view-transition-new(root)'});}).catch(()=>{});}
