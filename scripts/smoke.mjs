@@ -6,10 +6,11 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const files = fs
   .readdirSync(root, { recursive: true })
   .filter((p) => p.endsWith('.html'));
-// public/rl 是原样复制的独立教程，不套用主站页面的 SEO 约定。
-const sitePages = files.filter(
-  (p) => !p.split(path.sep).join('/').startsWith('rl/'),
-);
+// public/rl 与 public/ml 是原样复制的独立教程，不套用主站页面的 SEO 约定。
+const sitePages = files.filter((p) => {
+  const rel = p.split(path.sep).join('/');
+  return !rel.startsWith('rl/') && !rel.startsWith('ml/');
+});
 let links = 0;
 for (const file of sitePages) {
   const html = read(file);
@@ -69,55 +70,74 @@ for (const p of [
   'rl/css/fonts.css',
   'rl/js/app.js',
   'rl/js/content.js',
+  'ml/index.html',
+  'ml/css/style.css',
+  'ml/css/fonts.css',
+  'ml/js/app.js',
+  'ml/js/content.js',
+  'ml/og.png',
 ])
   assert.ok(fs.existsSync(path.join(root, p)), p);
-const rlHtml = read('rl/index.html');
-let rlAssets = 0;
-for (const match of rlHtml.matchAll(/(?:href|src)="([^"]+)"/g)) {
-  const ref = match[1];
-  if (/^(?:data:|https?:|\/\/|#)/.test(ref)) continue;
-  assert.ok(!ref.startsWith('/'), 'rl root-absolute asset: ' + ref);
-  const destination = path.normalize(path.join(root, 'rl', ref));
-  assert.ok(
-    destination.startsWith(path.join(root, 'rl') + path.sep),
-    'rl asset escapes /rl/: ' + ref,
+function assertStandalone(slug, minAssets) {
+  const html = read(slug + '/index.html');
+  let assets = 0;
+  for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+    const ref = match[1];
+    if (/^(?:data:|https?:|\/\/|#)/.test(ref)) continue;
+    assert.ok(!ref.startsWith('/'), slug + ' root-absolute asset: ' + ref);
+    const destination = path.normalize(path.join(root, slug, ref));
+    assert.ok(
+      destination.startsWith(path.join(root, slug) + path.sep),
+      slug + ' asset escapes /' + slug + '/: ' + ref,
+    );
+    assert.ok(fs.existsSync(destination), slug + ' missing asset: ' + ref);
+    assets++;
+  }
+  assert.ok(assets >= minAssets, slug + ' local assets');
+  assert.match(
+    html,
+    /<meta name="description" content="[^"]+"/,
+    slug + ' description',
   );
-  assert.ok(fs.existsSync(destination), 'rl missing asset: ' + ref);
-  rlAssets++;
+  assert.match(
+    html,
+    new RegExp(
+      '<link rel="canonical" href="https:\\/\\/leyanliu\\.com\\/' + slug + '\\/"',
+    ),
+    slug + ' canonical',
+  );
+  for (const tag of [
+    'property="og:title"',
+    'property="og:description"',
+    'property="og:url" content="https://leyanliu.com/' + slug + '/"',
+    'property="og:image" content="https://leyanliu.com/' + slug + '/og.png"',
+    'name="twitter:card" content="summary_large_image"',
+    'name="twitter:title"',
+    'name="twitter:description"',
+    'name="twitter:url" content="https://leyanliu.com/' + slug + '/"',
+    'name="twitter:image" content="https://leyanliu.com/' + slug + '/og.png"',
+  ])
+    assert.ok(html.includes(tag), slug + ' missing ' + tag);
+  const og = fs.readFileSync(path.join(root, slug + '/og.png'));
+  assert.equal(og.readUInt32BE(16), 1200, slug + ' og width');
+  assert.equal(og.readUInt32BE(20), 630, slug + ' og height');
+  return assets;
 }
-assert.ok(rlAssets >= 12, 'rl local assets');
-assert.match(
-  rlHtml,
-  /<meta name="description" content="[^"]+"/,
-  'rl description',
-);
-assert.match(
-  rlHtml,
-  /<link rel="canonical" href="https:\/\/leyanliu\.com\/rl\/"/,
-  'rl canonical',
-);
-for (const tag of [
-  'property="og:title"',
-  'property="og:description"',
-  'property="og:url" content="https://leyanliu.com/rl/"',
-  'property="og:image" content="https://leyanliu.com/rl/og.png"',
-  'name="twitter:card" content="summary_large_image"',
-  'name="twitter:title"',
-  'name="twitter:description"',
-  'name="twitter:url" content="https://leyanliu.com/rl/"',
-  'name="twitter:image" content="https://leyanliu.com/rl/og.png"',
-])
-  assert.ok(rlHtml.includes(tag), 'rl missing ' + tag);
-const og = fs.readFileSync(path.join(root, 'rl/og.png'));
-assert.equal(og.readUInt32BE(16), 1200, 'og width');
-assert.equal(og.readUInt32BE(20), 630, 'og height');
+const rlAssets = assertStandalone('rl', 12);
+const mlAssets = assertStandalone('ml', 8);
 assert.equal(read('CNAME').trim(), 'leyanliu.com', 'CNAME');
 assert.match(read('index.html'), /href="\/rl\/"/, 'nav link');
+assert.match(read('index.html'), /href="\/ml\/"/, 'nav ml');
 assert.match(read('projects/rl/index.html'), /href="\/rl\/"/, 'project link');
 assert.match(
   read('sitemap-0.xml'),
   /https:\/\/leyanliu\.com\/rl\//,
   'sitemap rl',
+);
+assert.match(
+  read('sitemap-0.xml'),
+  /https:\/\/leyanliu\.com\/ml\//,
+  'sitemap ml',
 );
 const article = read('blog/mpc-notes/index.html');
 assert.match(article, /class="katex"/, 'inline mathematics');
@@ -137,7 +157,9 @@ console.log(
     {
       pages: sitePages.length,
       standaloneRl: 'rl/index.html',
+      standaloneMl: 'ml/index.html',
       rlAssets,
+      mlAssets,
       internalLinksAndAssets: links,
       math: 'inline + display passed',
       seo: true,

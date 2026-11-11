@@ -39,6 +39,7 @@ function nav(){const t=UI.ThemeToggle();
     h('nav',{'aria-label':'主导航'},
       item('/','首页'),item('/about/','关于'),item('/projects/','研究项目'),
       item('#/','强化学习',{'aria-current':'page',onclick:e=>{if(location.pathname.startsWith('/rl')){e.preventDefault();goHome('gallery');}}}),
+      item('/ml/','机器学习'),
       item('/blog/','博客'),item('/publications/','论文')),
     t,h('a',{class:'contact-nav',href:'/contact/'},'联系 ↗')));
   document.body.prepend(el);}
@@ -64,7 +65,7 @@ function home(){
       h('p',{class:'hero-intro'},'交互式教程'),hl,
       h('p',{class:'h-sub'},'从“什么是奖励”讲到 PPO、SAC、RLHF、DPO 与 GRPO。每个公式逐符号翻译成大白话，每章都有手算例子、伪代码、常见误区、小测，以及在浏览器里实时计算的动手实验。'),
       h('div',{class:'h-roll'},h('span',null,'强化学习 ='),rw),
-      h('div',{class:'h-ctas'},h('a',{class:'button',href:'#/ch/1'},'开始学习 ↗'),h('a',{class:'text-link',href:'#gallery',onclick:goGallery},'浏览 17 章 →')),
+      h('div',{class:'h-ctas'},h('a',{class:'button',href:'#/ch/1'},'开始学习 ↗'),h('a',{class:'text-link',href:'#gallery',onclick:goGallery},'浏览 17 章 →'),h('a',{class:'text-link',href:'/ml/'},'机器学习教程 →')),
       h('div',{class:'h-stats'},stat(17,'章'),stat(totalDemos,'个动手实验'),stat(totalQ,'道小测'),stat(totalEq,'个公式'))),
     h('div',{class:'hero-visual'},
       h('div',{class:'visual-label'},'FIG. 01 / LIVE FIELD'),
@@ -84,10 +85,13 @@ function home(){
   const refs=CONTENT.refs.filter(b=>b.t==='LinkCards').flatMap(b=>b.links).filter(l=>!/cursor\.com\/canvas/.test(l.href));
   frag.appendChild(h('section',{class:'wrap',id:'refs',style:{marginTop:'110px'}},h('div',{class:'sec-head'},h('h2',{class:'sec-title'},h('span',{class:'zh'},'参考资料'),' · Sources'),h('p',{class:'sec-note'},'教材、原始论文与工具文档。链接需要联网，教程本身完全离线。')),
     h('div',{class:'refs'},...refs.map((l,i)=>reveal(h('a',{class:'ref',href:l.href,target:'_blank',rel:'noopener'},h('i',null,String(i+1).padStart(2,'0')),h('div',null,h('b',null,l.title),h('br'),h('span',null,l.site))),(i%6)*50)))));
+  frag.appendChild(h('section',{class:'wrap',id:'ml-bridge',style:{marginTop:'80px'}},
+    h('div',{class:'sec-head'},h('h2',{class:'sec-title'},h('span',{class:'zh'},'同一家族'),' · ',h('em',null,'Machine Learning')),h('p',{class:'sec-note'},'强化学习是机器学习的一个分支。监督、无监督、神经网络与大模型在机器学习教程里。')),
+    h('div',{class:'refs'},h('a',{class:'ref',href:'/ml/'},h('i',null,'ML'),h('div',null,h('b',null,'机器学习 · 从零到前沿'),h('br'),h('span',null,'20 章交互式教程：从线性回归、梯度下降到 Transformer、大模型与扩散模型。风格与本页相同，完全离线。'))))));
   frag.appendChild(footer());
   return frag;
 }
-function footer(){return h('footer',null,h('div',{class:'marquee',style:{margin:'0 0 40px'}},h('div',null,...[0,1].flatMap(()=>['Trial','Error','Reward','Return','Policy','Value','Explore','Exploit'].map(x=>h('span',null,x))))),'强化学习完全解析 · 从零到前沿 — 交互都在浏览器里实时计算。',h('br'),h('a',{href:'/'},'返回 Leyan Liu 首页'));}
+function footer(){return h('footer',null,h('div',{class:'marquee',style:{margin:'0 0 40px'}},h('div',null,...[0,1].flatMap(()=>['Trial','Error','Reward','Return','Policy','Value','Explore','Exploit'].map(x=>h('span',null,x))))),'强化学习完全解析 · 从零到前沿 — 交互都在浏览器里实时计算。',h('br'),h('a',{href:'/ml/'},'去看机器学习教程'),' · ',h('a',{href:'/'},'返回 Leyan Liu 首页'));}
 
 /* ---------- 画廊：筛选芯片 + 实时卡片 + 原位展开（FLIP） ---------- */
 function gallery(){

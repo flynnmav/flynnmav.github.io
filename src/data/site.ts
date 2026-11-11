@@ -37,6 +37,7 @@ export const navigation = [
   ['/projects/', '研究项目'],
   ['/code/', '代码'],
   ['/rl/', '强化学习'],
+  ['/ml/', '机器学习'],
   ['/blog/', '博客'],
   ['/publications/', '论文'],
 ];
