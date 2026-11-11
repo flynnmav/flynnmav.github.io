@@ -37,7 +37,7 @@ function nav(){const t=UI.ThemeToggle();
   const el=h('header',{class:'site-header'},h('div',{class:'nav-shell'},
     h('a',{class:'brand',href:'/','aria-label':'Leyan Liu 首页'},h('span',{class:'monogram','aria-hidden':'true'},'L.'),'Leyan Liu',h('span',{class:'brand-dot','aria-hidden':'true'},'/')),
     h('nav',{'aria-label':'主导航'},
-      item('/','首页'),item('/about/','关于'),item('/projects/','研究项目'),
+      item('/','首页'),item('/about/','关于'),item('/projects/','研究项目'),item('/code/','代码'),
       item('#/','强化学习',{'aria-current':'page',onclick:e=>{if(location.pathname.startsWith('/rl')){e.preventDefault();goHome('gallery');}}}),
       item('/ml/','机器学习'),
       item('/blog/','博客'),item('/publications/','论文')),
