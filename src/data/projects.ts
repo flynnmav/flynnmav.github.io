@@ -8,6 +8,7 @@ export interface Project {
   details: string;
   github?: string;
   demo?: string;
+  guide?: string;
 }
 const topics = [
   [
@@ -48,8 +49,9 @@ export const projects: Project[] = topics.map(
     summary,
     stack: [...stack],
     image: '/images/trajectory.svg',
-    status: '研究主题',
+    status: '研究主题' as const,
     details:
       '当前条目用于介绍关注的研究方向，尚未提供可核实的项目实现、实验数据或开源代码。具体目标、方法与资源将在确认后补充。',
+    ...(slug === 'rl' ? { guide: '/rl/' } : {}),
   }),
 );

@@ -33,6 +33,13 @@ const { project } = Astro.props;
       ))}
     </div>
     <p class="muted">配图为概念示意，不代表实验或已完成成果。</p>
+    {project.guide && (
+      <p>
+        <a class="button" href={project.guide}>
+          阅读交互式教程 ↗
+        </a>
+      </p>
+    )}
     {project.github && (
       <a class="button" href={project.github}>
         GitHub ↗
