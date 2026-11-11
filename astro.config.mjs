@@ -6,7 +6,11 @@ import rehypeKatex from 'rehype-katex';
 export default defineConfig({
   site: 'https://leyanliu.com',
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      customPages: ['https://leyanliu.com/rl/'],
+    }),
+  ],
   markdown: {
     processor: unified({
       remarkPlugins: [remarkMath],

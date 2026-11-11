@@ -35,6 +35,7 @@ export const navigation = [
   ['/', '首页'],
   ['/about/', '关于'],
   ['/projects/', '研究项目'],
+  ['/rl/', '强化学习'],
   ['/blog/', '博客'],
   ['/publications/', '论文'],
 ];

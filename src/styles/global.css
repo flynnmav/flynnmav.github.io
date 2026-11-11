@@ -148,6 +148,7 @@ p {
   font-weight: 600;
   padding: 7px 12px;
   border-radius: 11px;
+  white-space: nowrap;
 }
 .header nav a:hover {
   background: var(--mintbg);
@@ -923,6 +924,21 @@ p {
     gap: 30px;
   }
 }
+@media (max-width: 820px) {
+  .nav-shell {
+    flex-wrap: wrap;
+  }
+  .header nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+    overflow: auto;
+  }
+  .contact-nav {
+    margin-left: auto;
+  }
+}
 @media (max-width: 700px) {
   .container {
     padding-inline: 22px;
@@ -944,8 +960,11 @@ p {
     order: 3;
     width: 100%;
     justify-content: space-between;
-    gap: 6px;
+    gap: 2px;
     overflow: auto;
+  }
+  .header nav a {
+    padding: 7px 8px;
   }
   .contact-nav {
     margin-left: auto;

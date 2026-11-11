@@ -86,6 +86,39 @@ for (const match of rlHtml.matchAll(/(?:href|src)="([^"]+)"/g)) {
   rlAssets++;
 }
 assert.ok(rlAssets >= 12, 'rl local assets');
+assert.match(
+  rlHtml,
+  /<meta name="description" content="[^"]+"/,
+  'rl description',
+);
+assert.match(
+  rlHtml,
+  /<link rel="canonical" href="https:\/\/leyanliu\.com\/rl\/"/,
+  'rl canonical',
+);
+for (const tag of [
+  'property="og:title"',
+  'property="og:description"',
+  'property="og:url" content="https://leyanliu.com/rl/"',
+  'property="og:image" content="https://leyanliu.com/rl/og.png"',
+  'name="twitter:card" content="summary_large_image"',
+  'name="twitter:title"',
+  'name="twitter:description"',
+  'name="twitter:url" content="https://leyanliu.com/rl/"',
+  'name="twitter:image" content="https://leyanliu.com/rl/og.png"',
+])
+  assert.ok(rlHtml.includes(tag), 'rl missing ' + tag);
+const og = fs.readFileSync(path.join(root, 'rl/og.png'));
+assert.equal(og.readUInt32BE(16), 1200, 'og width');
+assert.equal(og.readUInt32BE(20), 630, 'og height');
+assert.equal(read('CNAME').trim(), 'leyanliu.com', 'CNAME');
+assert.match(read('index.html'), /href="\/rl\/"/, 'nav link');
+assert.match(read('projects/rl/index.html'), /href="\/rl\/"/, 'project link');
+assert.match(
+  read('sitemap-0.xml'),
+  /https:\/\/leyanliu\.com\/rl\//,
+  'sitemap rl',
+);
 const article = read('blog/mpc-notes/index.html');
 assert.match(article, /class="katex"/, 'inline mathematics');
 assert.match(article, /class="katex-display"/, 'display mathematics');
