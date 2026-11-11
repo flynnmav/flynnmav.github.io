@@ -21,7 +21,7 @@ I['ch14-dyna#1']={title:'迷宫回放：选一个规划步数，拖动回合'};
 D['ch14-dyna#1']=(el)=>{const {MR,MC,WALLS,MSTART,MGOAL}=P3;let N=0,paths=P3.dynaPaths(0),ep=1,idx=0;const cs=60,cx=st=>20+(st%MC)*cs+cs/2,cy=st=>10+Math.floor(st/MC)*cs+cs/2;
   const svg=s('svg',{viewBox:'0 0 580 380'});for(let st=0;st<MR*MC;st++){const w=WALLS.has(st),g=st===MGOAL;svg.appendChild(s('rect',{x:22+(st%MC)*cs,y:12+Math.floor(st/MC)*cs,width:cs-4,height:cs-4,rx:10,fill:w?'var(--faint)':g?'var(--c5)':'var(--card)','fill-opacity':w?.35:g?.45:1,stroke:'var(--line)'}));}
   svg.append(s('text',{x:cx(MSTART),y:cy(MSTART)+5,'text-anchor':'middle','font-size':14,fill:'var(--muted)',text:'S'}),s('text',{x:cx(MGOAL),y:cy(MGOAL)+5,'text-anchor':'middle','font-size':14,fill:'var(--fg)',text:'G'}));
-  const pl=s('polyline',{fill:'none',stroke:'var(--c2)','stroke-opacity':.5,'stroke-width':3,'stroke-linejoin':'round'}),dot=s('circle',{r:11,fill:'var(--c1)',stroke:'var(--bg)','stroke-width':2,style:{filter:'drop-shadow(0 0 10px #ffc49b)'}});svg.append(pl,dot);
+  const pl=s('polyline',{fill:'none',stroke:'var(--c2)','stroke-opacity':.5,'stroke-width':3,'stroke-linejoin':'round'}),dot=s('circle',{r:11,fill:'var(--c1)',stroke:'var(--bg)','stroke-width':2,style:{filter:'none'}});svg.append(pl,dot);
   const dx=new Spring(cx(MSTART),{stiffness:900,damping:40}),dy=new Spring(cy(MSTART),{stiffness:900,damping:40});const info=ro();
   const path=()=>paths[ep-1];
   function paint(){const p=path();pl.setAttribute('points',p.slice(0,idx+1).map(st=>cx(st)+','+cy(st)).join(' '));dx.set(cx(p[idx]));dy.set(cy(p[idx]));
@@ -64,7 +64,7 @@ I['ch15-s2r#0']={title:'域随机化抽签机：每回合换一架“不同”�
 D['ch15-s2r#0']=(el)=>{const PR=P3.DR_PARAMS;const draw=()=>PR.map(p=>p.lo+Math.random()*(p.hi-p.lo));let vals=PR.map(p=>(p.lo+p.hi)/2),spin=0,masses=[];
   const cardsW=h('div',{class:'drcards'});const cards=PR.map((p,i)=>{const v=h('div',{class:'v mono'});const c=h('div',{class:'drc'},h('div',{class:'k'},p.name),v,h('div',{class:'rng'},`${p.lo}–${p.hi} ${p.unit}`));cardsW.appendChild(c);return {c,v};});
   const svg=s('svg',{viewBox:'0 0 700 130'});const bs=[];for(let i=0;i<8;i++){const r=s('rect',{x:40+i*80,width:70,rx:8,fill:'url(#drG)'});svg.appendChild(r);bs.push({r,sp:new Spring(0,{stiffness:160,damping:13})});}
-  svg.insertBefore(s('defs',null,s('linearGradient',{id:'drG',x1:0,x2:0,y1:0,y2:1},s('stop',{offset:0,'stop-color':'#5eead4'}),s('stop',{offset:1,'stop-color':'#a78bfa','stop-opacity':.6}))),svg.firstChild);
+  svg.insertBefore(s('defs',null,s('linearGradient',{id:'drG',x1:0,x2:0,y1:0,y2:1},s('stop',{offset:0,'stop-color':'var(--c4)'}),s('stop',{offset:1,'stop-color':'var(--c3)','stop-opacity':.6}))),svg.firstChild);
   svg.appendChild(s('line',{x1:40,x2:680,y1:100,y2:100,stroke:'var(--line2)'}));[.8,.9,1,1.1,1.2].forEach((m,i)=>svg.appendChild(s('text',{x:40+i*160,y:118,'text-anchor':'middle','font-size':12,fill:'var(--faint)',text:m.toFixed(1)+' kg'})));
   const info=ro();
   function paint(){cards.forEach((c,i)=>{c.v.textContent=`${vals[i].toFixed(PR[i].dig)} ${PR[i].unit}`;c.c.classList.toggle('spin',spin>0);});const bins=new Array(8).fill(0);masses.forEach(m=>{bins[Math.min(7,Math.floor((m-.8)/.4*8))]++;});const mx=Math.max(1,...bins);bins.forEach((b,i)=>bs[i].sp.set(b/mx));

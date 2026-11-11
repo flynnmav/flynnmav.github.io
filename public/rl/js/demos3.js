@@ -9,7 +9,7 @@ I['ch5-grid#0']={title:'网格世界：看价值像水波一样从终点扩散'}
 D['ch5-grid#0']=(el)=>{const {GR,GC,ARROW,cellAt,isTerminal,moveGrid,qGrid,backupGrid}=P1;
   let mode='vi',gm=.9,slip=false,V=new Array(GR*GC).fill(0),iter=0,lastDelta=0,agent=null,walkSteps=0,hover=null;
   const cell=100,svg=s('svg',{viewBox:'0 0 520 420'});const cg=s('g'),ag=s('g',{style:{pointerEvents:'none'}}),tg=s('g',{style:{pointerEvents:'none'}});svg.append(cg,ag,tg);
-  const ball=s('circle',{r:15,fill:'var(--c1)',stroke:'var(--bg)','stroke-width':3,style:{filter:'drop-shadow(0 0 12px #ffc49b)'}});ag.appendChild(ball);ag.style.opacity=0;
+  const ball=s('circle',{r:15,fill:'var(--c1)',stroke:'var(--bg)','stroke-width':3,style:{filter:'none'}});ag.appendChild(ball);ag.style.opacity=0;
   const axs=new Spring(60,{stiffness:170,damping:15}),ays=new Spring(60,{stiffness:170,damping:15});
   const cells=[];for(let st=0;st<GR*GC;st++){const r=Math.floor(st/GC),c=st%GC,x=c*cell+10,y=r*cell+10,k=cellAt(st);
     const rect=s('rect',{x:x+2,y:y+2,width:cell-4,height:cell-4,rx:14,fill:'var(--card)',stroke:'var(--line)',style:{transition:'fill .45s, stroke .3s'}});const g=s('g',null,rect);let val=null,arr=null;
@@ -53,8 +53,8 @@ D['ch6#0']=(el)=>{const N=P1.RW_NAMES;let sums=[0,0,0,0,0],counts=[0,0,0,0,0],pa
   const bars=N.map((n,i)=>{svg.append(s('circle',{cx:xOf(i),cy:50,r:20,fill:'var(--card2)',stroke:'var(--line2)'}),s('text',{x:xOf(i),y:55,'text-anchor':'middle','font-size':14,fill:'var(--fg)',text:n}));
     const r=s('rect',{x:xOf(i)-22,width:44,rx:6,fill:'url(#mcg)'}),t=s('text',{x:xOf(i),'text-anchor':'middle','font-size':12,fill:'var(--muted)'}),tr=(i+1)/6;
     svg.append(r,s('line',{x1:xOf(i)-30,x2:xOf(i)+30,y1:235-tr*120,y2:235-tr*120,stroke:'var(--c4)','stroke-width':2,'stroke-dasharray':'5 4'}),t,s('text',{x:xOf(i),y:252,'text-anchor':'middle','font-size':12,fill:'var(--faint)',text:`V(${n})`}));return {r,t,sp:new Spring(.5,{stiffness:150,damping:12})};});
-  svg.insertBefore(s('defs',null,s('linearGradient',{id:'mcg',x1:0,x2:0,y1:0,y2:1},s('stop',{offset:0,'stop-color':'#ff8fb1'}),s('stop',{offset:1,'stop-color':'#a78bfa','stop-opacity':.5}))),svg.firstChild);
-  const tr=s('polyline',{fill:'none',stroke:'var(--c1)','stroke-width':2,opacity:.5});const tok=s('circle',{r:10,fill:'var(--c1)',style:{filter:'drop-shadow(0 0 10px #ffc49b)'}});svg.append(tr,tok);const tx=new Spring(xOf(2),{stiffness:260,damping:18});
+  svg.insertBefore(s('defs',null,s('linearGradient',{id:'mcg',x1:0,x2:0,y1:0,y2:1},s('stop',{offset:0,'stop-color':'var(--c1)'}),s('stop',{offset:1,'stop-color':'var(--c3)','stop-opacity':.5}))),svg.firstChild);
+  const tr=s('polyline',{fill:'none',stroke:'var(--c1)','stroke-width':2,opacity:.5});const tok=s('circle',{r:10,fill:'var(--c1)',style:{filter:'none'}});svg.append(tr,tok);const tx=new Spring(xOf(2),{stiffness:260,damping:18});
   const info=ro();const genPath=()=>{const p=[2];let st=2;while(st>=0&&st<=4){st=Math.random()<.5?st-1:st+1;p.push(st);}return p;};
   function apply(paths){let g=0;for(const p of paths){g=p[p.length-1]===5?1:0;for(let i=0;i<p.length-1;i++){sums[p[i]]+=g;counts[p[i]]++;}}episodes+=paths.length;lastG=g;paint();}
   function paint(){const est=sums.map((v,i)=>counts[i]?v/counts[i]:.5);bars.forEach((b,i)=>b.sp.set(est[i]));tx.set(xOf(path[idx]));

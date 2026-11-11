@@ -15,7 +15,7 @@ window.DEMOS=D;window.DK={D,I,f2,f1,row,pills,ro,every,bez};
 I['ch1#0']={title:'智能体 ⇄ 环境：无人机悬停的一次次循环'};
 D['ch1#0']=(el)=>{const L=P1.LOOP_STEPS;let p=0,k=0,playing=true;
   const svg=s('svg',{viewBox:'0 0 700 240'});
-  svg.appendChild(s('defs',null,s('linearGradient',{id:'agG',x1:0,x2:1},s('stop',{offset:0,'stop-color':'#ff6fa5'}),s('stop',{offset:1,'stop-color':'#a78bfa'}))));
+  svg.appendChild(s('defs',null,s('linearGradient',{id:'agG',x1:0,x2:1},s('stop',{offset:0,'stop-color':'var(--c2)'}),s('stop',{offset:1,'stop-color':'var(--c3)'}))));
   const top=s('path',{d:'M220 92 Q350 0 480 92',fill:'none',stroke:'var(--line2)','stroke-width':1.5,'stroke-dasharray':'5 6'}),bot=s('path',{d:'M480 148 Q350 240 220 148',fill:'none',stroke:'var(--line2)','stroke-width':1.5,'stroke-dasharray':'5 6'});
   const A=s('rect',{x:40,y:80,width:180,height:80,rx:16,fill:'var(--card)',stroke:'var(--c2)'}),E=s('rect',{x:480,y:80,width:180,height:80,rx:16,fill:'var(--card)',stroke:'var(--c4)'});
   const drone=s('g',null,s('rect',{x:-26,y:-3,width:52,height:6,rx:3,fill:'var(--fg)'}),s('circle',{cx:-26,cy:-6,r:8,fill:'none',stroke:'var(--c4)','stroke-width':2}),s('circle',{cx:26,cy:-6,r:8,fill:'none',stroke:'var(--c4)','stroke-width':2}));
@@ -29,7 +29,7 @@ D['ch1#0']=(el)=>{const L=P1.LOOP_STEPS;let p=0,k=0,playing=true;
   el.append(svg,pills(pb,Btn('下一轮 ⏭',()=>{p=0;k=(k+1)%L.length;})),info);
   Loop.add(dt=>{if(playing&&!RM)p+=dt*.7;if(p>=2){p-=2;k=(k+1)%L.length;}const isTop=p<1;
     trail.forEach((c,i)=>{const q=p-i*.018;const qq=((q%2)+2)%2;const P=qq<1?bez(qq,[220,92],[350,0],[480,92]):bez(qq-1,[480,148],[350,240],[220,148]);c.setAttribute('cx',P[0]);c.setAttribute('cy',P[1]);});
-    A.setAttribute('stroke-width',isTop?2.5:1);E.setAttribute('stroke-width',isTop?1:2.5);A.style.filter=isTop?'drop-shadow(0 0 14px #ff6fa5)':'none';E.style.filter=!isTop?'drop-shadow(0 0 14px #5eead4)':'none';
+    A.setAttribute('stroke-width',isTop?2.5:1);E.setAttribute('stroke-width',isTop?1:2.5);A.style.filter=isTop?'none':'none';E.style.filter=!isTop?'none':'none';
     const st=L[k];tA.textContent='动作 Aₜ：'+st.a;tS.textContent='新状态：'+st.s+'，奖励 '+st.r;tA.setAttribute('opacity',isTop?1:.35);tS.setAttribute('opacity',isTop?.35:1);
     aS.set(isTop?ang[(k+3)%4]:ang[k]);aS.step(dt);drone.setAttribute('transform',`rotate(${aS.x*2.5})`);
     info.innerHTML=`第 <b>${k+1}</b> 轮 / 共 ${L.length} 轮循环演示：${isTop?'智能体正在把动作发给环境':'环境正在返回新状态和奖励'}。机身倾角随状态实时变化。`;},el);
@@ -67,7 +67,7 @@ D['ch2-grad#1']=(el)=>{const W=700,H=240,Lm=40,R=20,T=16,B=30,xmin=-2,xmax=8,yma
   const svg=s('svg',{viewBox:`0 0 ${W} ${H}`,style:{touchAction:'none',cursor:'grab'}});const pts=[];for(let i=0;i<=120;i++){const x=xmin+i/120*(xmax-xmin);pts.push(sx(x)+','+sy(loss(x)));}
   svg.append(s('line',{x1:Lm,x2:W-R,y1:sy(0),y2:sy(0),stroke:'var(--line)'}),s('polyline',{points:pts.join(' '),fill:'none',stroke:'var(--c4)','stroke-width':3}));
   [-2,0,3,6,8].forEach(x=>svg.appendChild(s('text',{x:sx(x),y:H-8,'text-anchor':'middle','font-size':12,fill:'var(--faint)',text:'θ='+x})));
-  const tg=s('g');svg.appendChild(tg);const ball=s('circle',{r:12,fill:'var(--c2)',stroke:'var(--bg)','stroke-width':3,style:{filter:'drop-shadow(0 0 10px #ff6fa5)'}});svg.appendChild(ball);
+  const tg=s('g');svg.appendChild(tg);const ball=s('circle',{r:12,fill:'var(--c2)',stroke:'var(--bg)','stroke-width':3,style:{filter:'none'}});svg.appendChild(ball);
   const bx=new Spring(theta,{stiffness:140,damping:13});const info=ro();const show=x=>clamp(x,xmin,xmax);
   function paint(){tg.innerHTML='';trail.forEach((x,i)=>tg.appendChild(s('circle',{cx:sx(show(x)),cy:sy(loss(x)),r:5,fill:'var(--c1)',opacity:.3+.6*i/Math.max(1,trail.length)})));
     info.innerHTML=`θ = <b>${theta.toFixed(3)}</b>，L(θ) = <b>${loss(theta).toFixed(3)}</b>，梯度 = <b>${(2*(theta-3)).toFixed(3)}</b>。${alpha>=1?'α 太大：每一步都跨过谷底，越跳越远（发散）。':alpha>=.5?'α 偏大：会在谷底两侧来回跳。':'α 合适：稳稳地滑向谷底。'}`;}
