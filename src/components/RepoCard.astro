@@ -1,0 +1,65 @@
+---
+import type { CodeRepo } from '../data/repos';
+interface Props {
+  repo: CodeRepo;
+  index: number;
+}
+const { repo, index } = Astro.props;
+const isPublic = repo.private === false;
+---
+
+<article
+  class="project-card repo-card"
+  data-visibility={isPublic ? 'public' : 'private'}
+>
+  <div class="project-top">
+    <span class="project-number">{String(index + 1).padStart(2, '0')}</span>
+    {isPublic ? (
+      <span
+        class="status repo-stars"
+        aria-label={`${repo.language}，${repo.stars} 个 star`}
+      >
+        {repo.language} · ★ {repo.stars}
+      </span>
+    ) : (
+      <span class="status repo-private">私有仓库</span>
+    )}
+  </div>
+  <h3>
+    {isPublic ? (
+      <a href={repo.href} target="_blank" rel="noopener noreferrer">
+        {repo.name}
+      </a>
+    ) : (
+      repo.name
+    )}
+  </h3>
+  <p>{repo.summary}</p>
+  <div class="tags repo-tags">
+    {repo.tags.map((tag) => (
+      <span>{tag}</span>
+    ))}
+  </div>
+  {isPublic && (
+    <div class="repo-links">
+      <a
+        class="project-link"
+        href={repo.href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub <span aria-hidden="true">↗</span>
+      </a>
+      {repo.extra && (
+        <a
+          class="project-link"
+          href={repo.extra.href}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {repo.extra.label} <span aria-hidden="true">↗</span>
+        </a>
+      )}
+    </div>
+  )}
+</article>

@@ -1,0 +1,48 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import RepoCard from '../../components/RepoCard.astro';
+import { codeGroups, githubProfile } from '../../data/repos';
+---
+
+<SiteLayout
+  title="开源与代码"
+  description="精选的飞行控制、视觉感知与工具仓库。公开仓库链到 GitHub；私有仓库只展示名称和简介。"
+>
+  <div class="container page">
+    <div class="eyebrow">CODE / 开源与代码</div>
+    <h1>选一些仓库，放在这里。</h1>
+    <p class="lead">
+      飞行与控制、视觉感知，以及平时用的小工具。公开仓库链到
+      GitHub，并标出主要语言和 star；私有仓库只保留名称、简介和标签。
+    </p>
+    <div class="repo-profile">
+      <a
+        class="button"
+        href={githubProfile}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub @flynnmav ↗
+      </a>
+    </div>
+    {codeGroups.map((group) => (
+      <section
+        class="repo-group"
+        id={group.id}
+        aria-labelledby={group.id + '-title'}
+      >
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">{group.kicker}</div>
+            <h2 id={group.id + '-title'}>{group.title}</h2>
+          </div>
+        </div>
+        <div class="project-grid">
+          {group.repos.map((repo, index) => (
+            <RepoCard repo={repo} index={index} />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</SiteLayout>
