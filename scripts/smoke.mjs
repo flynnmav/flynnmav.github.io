@@ -56,6 +56,8 @@ for (const p of [
   'projects/index.html',
   'blog/index.html',
   'publications/index.html',
+  'tools/index.html',
+  'tools/video-to-gif/index.html',
   'contact/index.html',
   '404.html',
   'rss.xml',
@@ -102,7 +104,9 @@ function assertStandalone(slug, minAssets) {
   assert.match(
     html,
     new RegExp(
-      '<link rel="canonical" href="https:\\/\\/leyanliu\\.com\\/' + slug + '\\/"',
+      '<link rel="canonical" href="https:\\/\\/leyanliu\\.com\\/' +
+        slug +
+        '\\/"',
     ),
     slug + ' canonical',
   );
@@ -128,6 +132,7 @@ const mlAssets = assertStandalone('ml', 8);
 assert.equal(read('CNAME').trim(), 'leyanliu.com', 'CNAME');
 assert.match(read('index.html'), /href="\/rl\/"/, 'nav link');
 assert.match(read('index.html'), /href="\/ml\/"/, 'nav ml');
+assert.match(read('index.html'), /href="\/tools\/"/, 'nav tools');
 assert.match(read('projects/rl/index.html'), /href="\/rl\/"/, 'project link');
 assert.match(
   read('sitemap-0.xml'),
@@ -138,6 +143,16 @@ assert.match(
   read('sitemap-0.xml'),
   /https:\/\/leyanliu\.com\/ml\//,
   'sitemap ml',
+);
+assert.match(
+  read('sitemap-0.xml'),
+  /https:\/\/leyanliu\.com\/tools\//,
+  'sitemap tools',
+);
+assert.match(
+  read('sitemap-0.xml'),
+  /https:\/\/leyanliu\.com\/tools\/video-to-gif\//,
+  'sitemap video-to-gif',
 );
 const article = read('blog/mpc-notes/index.html');
 assert.match(article, /class="katex"/, 'inline mathematics');

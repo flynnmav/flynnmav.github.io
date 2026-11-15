@@ -17,9 +17,9 @@
 :root {
   --ink: #2b2d42;
   --muted: #6b7089;
-  --blue: #2f9e5b;            /* 品牌强调色 → 黏土绿 */
-  --line: #efe5dc;            /* 细分隔线(奶油调) */
-  --edge: #2b2d42;            /* 黏土粗描边色 */
+  --blue: #2f9e5b; /* 品牌强调色 → 黏土绿 */
+  --line: #efe5dc; /* 细分隔线(奶油调) */
+  --edge: #2b2d42; /* 黏土粗描边色 */
   --bd: 2.5px solid var(--edge);
   --wash: #fbf0e6;
   --greenbg: #c9f2d3;
@@ -167,7 +167,9 @@ p {
   border-radius: 13px;
   background: var(--greenbg);
   box-shadow: var(--sh-dn-xs);
-  transition: transform 0.13s, box-shadow 0.13s;
+  transition:
+    transform 0.13s,
+    box-shadow 0.13s;
 }
 .contact-nav:hover {
   transform: translateY(-2px);
@@ -393,7 +395,9 @@ p {
   border: var(--bd);
   border-radius: 18px;
   box-shadow: 0 6px 0 -1px var(--edge);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
 }
 .research-grid > div:hover {
   transform: translateY(-3px);
@@ -705,7 +709,9 @@ p {
   border-radius: 999px;
   background: #fff;
   box-shadow: var(--sh-dn-xs);
-  transition: transform 0.12s, box-shadow 0.12s;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s;
 }
 .filter:hover {
   transform: translateY(-2px);
@@ -867,7 +873,9 @@ p {
   padding: 14px 18px;
   background: #fff;
   box-shadow: var(--sh-dn-xs);
-  transition: transform 0.13s, box-shadow 0.13s;
+  transition:
+    transform 0.13s,
+    box-shadow 0.13s;
 }
 .article-pagination a:hover {
   transform: translateY(-3px);
@@ -1175,6 +1183,169 @@ p {
 .repo-links .project-link {
   flex: 1;
   margin-top: 18px;
+}
+/* ---------- 小工具 ---------- */
+.gif-tool .text-link {
+  display: inline-block;
+  margin-bottom: 18px;
+}
+.gif-card {
+  background: #fff;
+  border: var(--bd);
+  border-radius: 20px;
+  box-shadow: 0 8px 0 -2px var(--edge);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.gif-drop {
+  display: block;
+  width: 100%;
+  border: 2.5px dashed var(--edge);
+  border-radius: 18px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.7;
+  box-shadow: var(--sh-dn-sm);
+}
+.gif-drop small {
+  display: block;
+  margin-top: 6px;
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 13px;
+}
+.gif-drop.is-over,
+.gif-drop:hover {
+  background: var(--mintbg);
+  color: var(--ink);
+}
+.gif-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.gif-hidden {
+  display: none !important;
+}
+.gif-tool video,
+.gif-card img {
+  max-width: 100%;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+  border: var(--bd);
+  background: var(--wash);
+}
+.gif-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.gif-field label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.gif-field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--bd);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.gif-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.gif-primary,
+.gif-secondary {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border: var(--bd);
+  border-radius: 14px;
+  padding: 10px 18px;
+  cursor: pointer;
+  box-shadow: var(--sh-dn-xs);
+}
+.gif-primary {
+  background: var(--blue);
+  color: #fff;
+}
+.gif-primary:hover {
+  background: #2a8f52;
+  color: #fff;
+}
+.gif-secondary {
+  background: var(--purplebg);
+  color: var(--ink);
+}
+.gif-secondary:hover {
+  background: var(--bluebg);
+  color: var(--ink);
+}
+.gif-primary:disabled {
+  background: #c5c9d6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.gif-tool button:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 4px;
+}
+.gif-bar {
+  height: 12px;
+  margin-top: 16px;
+  background: var(--wash);
+  border: var(--bd);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.gif-bar div {
+  height: 100%;
+  width: 0;
+  background: var(--blue);
+}
+.gif-status {
+  margin-top: 10px;
+  font-size: 13px;
+}
+#out img {
+  margin-left: 0;
+  margin-bottom: 4px;
+}
+#out .gif-primary,
+#out .gif-secondary {
+  margin-top: 12px;
+  margin-right: 8px;
+}
+@media (max-width: 1180px) and (min-width: 821px) {
+  .nav-shell {
+    gap: 14px;
+  }
+  .header nav a {
+    padding: 7px 8px;
+    font-size: 13px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   html {

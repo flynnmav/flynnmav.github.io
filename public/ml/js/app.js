@@ -43,7 +43,7 @@ function nav(){const t=UI.ThemeToggle();
       item('/','首页'),item('/about/','关于'),item('/projects/','研究项目'),item('/code/','代码'),
       item('/rl/','强化学习'),
       item('#/','机器学习',{'aria-current':'page',onclick:e=>{if(location.pathname.startsWith('/ml')){e.preventDefault();goHome('gallery');}}}),
-      item('/blog/','博客'),item('/publications/','论文')),
+      item('/blog/','博客'),item('/publications/','论文'),item('/tools/','小工具')),
     t,h('a',{class:'contact-nav',href:'/contact/'},'联系 ↗')));
   document.body.prepend(el);}
 function goGallery(e){e&&e.preventDefault();goHome('gallery');}
