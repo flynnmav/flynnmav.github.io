@@ -41,17 +41,20 @@ function seekTo(time: number, token: number) {
       reject(new Cancelled());
       return;
     }
-    if (Math.abs(video.currentTime - time) < 0.001) {
-      resolve();
-      return;
-    }
+    let settled = false;
     const finish = (fn: () => void) => {
-      video.removeEventListener('seeked', onSeek);
+      if (settled) return;
+      settled = true;
+      video.removeEventListener('seeked', onReady);
+      video.removeEventListener('loadeddata', onReady);
       video.removeEventListener('error', onStop);
       window.clearTimeout(timer);
       fn();
     };
-    const onSeek = () => finish(resolve);
+    const onReady = () => {
+      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+        finish(resolve);
+    };
     const onStop = () =>
       finish(() => reject(token === job ? new Error('seek') : new Cancelled()));
     const timer = window.setTimeout(
@@ -61,12 +64,16 @@ function seekTo(time: number, token: number) {
         ),
       5000,
     );
-    video.addEventListener('seeked', onSeek);
+    video.addEventListener('seeked', onReady);
+    video.addEventListener('loadeddata', onReady);
     video.addEventListener('error', onStop);
-    video.currentTime = Math.min(
-      Math.max(time, 0),
-      Math.max(video.duration - 0.001, 0),
-    );
+    const duration = Number.isFinite(video.duration) ? video.duration : time;
+    const target = Math.min(Math.max(time, 0), Math.max(duration - 0.001, 0));
+    if (Math.abs(video.currentTime - target) < 0.001) {
+      onReady();
+      return;
+    }
+    video.currentTime = target;
   });
 }
 
@@ -103,13 +110,6 @@ async function encodeFast(token: number, start: number, end: number) {
     video: { codec: 'V_VP8', width, height, frameRate: fps },
     firstTimestampBehavior: 'offset',
   });
-  let encodeError: Error | null = null;
-  const encoder = new VideoEncoder({
-    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-    error: (error) => {
-      encodeError = error;
-    },
-  });
   const config: VideoEncoderConfig = {
     codec: 'vp8',
     width,
@@ -121,9 +121,16 @@ async function encodeFast(token: number, start: number, end: number) {
   };
   const support = await VideoEncoder.isConfigSupported(config);
   if (!support.supported) throw new Error('no-vp8');
-  encoder.configure(config);
+  let encodeError: Error | null = null;
+  const encoder = new VideoEncoder({
+    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+    error: (error) => {
+      encodeError = error;
+    },
+  });
   const duration = Math.round(1_000_000 / fps);
   try {
+    encoder.configure(config);
     for (let i = 0; i < frames; i++) {
       if (token !== job) throw new Cancelled();
       if (encodeError) throw encodeError;
@@ -186,20 +193,29 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
   };
   return new Promise<Blob>((resolve, reject) => {
     let settled = false;
+    let watchdog = 0;
     const finish = (fn: () => void) => {
       if (settled) return;
       settled = true;
+      window.clearTimeout(watchdog);
       video.pause();
       fn();
     };
+    watchdog = window.setTimeout(
+      () => {
+        finish(() => reject(new Error('录制超时')));
+        if (recorder.state !== 'inactive') recorder.stop();
+      },
+      Math.max(8000, (end - start + 5) * 1000),
+    );
     recorder.onstop = () =>
       finish(() => resolve(new Blob(chunks, { type: 'video/webm' })));
     recorder.onerror = () => finish(() => reject(new Error('录制失败')));
     const draw = () => {
       if (settled) return;
       if (token !== job) {
-        if (recorder.state !== 'inactive') recorder.stop();
         finish(() => reject(new Cancelled()));
+        if (recorder.state !== 'inactive') recorder.stop();
         return;
       }
       ctx.drawImage(video, 0, 0, width, height);
@@ -214,10 +230,18 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
       requestAnimationFrame(draw);
     };
     void seekTo(start, token)
-      .then(() => {
-        video.muted = strip;
+      .then(async () => {
+        video.muted = true;
         recorder.start(200);
-        void video.play();
+        try {
+          await video.play();
+        } catch (error) {
+          finish(() =>
+            reject(error instanceof Error ? error : new Error('无法播放视频')),
+          );
+          if (recorder.state !== 'inactive') recorder.stop();
+          return;
+        }
         draw();
       })
       .catch((error: unknown) => finish(() => reject(error)));

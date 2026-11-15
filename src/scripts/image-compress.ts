@@ -28,7 +28,6 @@ interface Item {
 }
 
 let items: Item[] = [];
-let urls: string[] = [];
 let pending: File[] = [];
 let job = 0;
 
@@ -50,8 +49,9 @@ function isGif(next: File) {
 }
 
 function fit(width: number, height: number) {
-  const limit = Math.max(0, Number(edge.value) || 0);
-  const cap = limit > 0 ? limit : 8192;
+  const raw = Number(edge.value);
+  const requested = Number.isFinite(raw) && raw > 0 ? raw : 8192;
+  const cap = Math.min(8192, Math.max(1, requested));
   const longest = Math.max(width, height);
   if (longest <= cap) return { width, height };
   const scale = cap / longest;
@@ -176,12 +176,14 @@ async function convert(next: File) {
   return staticImage(next, mime, q);
 }
 
+function dropItems() {
+  for (const item of items) URL.revokeObjectURL(item.url);
+  items = [];
+}
+
 function render() {
-  for (const url of urls) URL.revokeObjectURL(url);
-  urls = [];
   results.replaceChildren();
   for (const item of items) {
-    urls.push(item.url);
     const row = document.createElement('div');
     row.className = 'result-row';
     const img = document.createElement('img');
@@ -222,7 +224,7 @@ async function run(files: File[]) {
   pending = files;
   const token = ++job;
   go.disabled = true;
-  items = [];
+  dropItems();
   render();
   const mime = format.value;
   const ext = EXT[mime] ?? '.bin';
