@@ -58,6 +58,11 @@ for (const p of [
   'publications/index.html',
   'tools/index.html',
   'tools/video-to-gif/index.html',
+  'tools/px4-log-viewer/index.html',
+  'tools/pid-simulator/index.html',
+  'tools/coord-convert/index.html',
+  'tools/image-compress/index.html',
+  'tools/video-trim/index.html',
   'contact/index.html',
   '404.html',
   'rss.xml',
@@ -154,6 +159,19 @@ assert.match(
   /https:\/\/leyanliu\.com\/tools\/video-to-gif\//,
   'sitemap video-to-gif',
 );
+for (const slug of [
+  'px4-log-viewer',
+  'pid-simulator',
+  'coord-convert',
+  'image-compress',
+  'video-trim',
+]) {
+  assert.match(
+    read('sitemap-0.xml'),
+    new RegExp('https://leyanliu\\.com/tools/' + slug + '/'),
+    'sitemap ' + slug,
+  );
+}
 const article = read('blog/mpc-notes/index.html');
 assert.match(article, /class="katex"/, 'inline mathematics');
 assert.match(article, /class="katex-display"/, 'display mathematics');

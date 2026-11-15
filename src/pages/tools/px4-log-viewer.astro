@@ -1,0 +1,52 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title="PX4 日志查看器"
+  description="在浏览器里打开 PX4 的 .ulg 飞行日志，选择 topic 和字段并绘制曲线。文件不会上传。"
+>
+  <div class="container page gif-tool">
+    <a class="text-link" href="/tools/">
+      ← 所有小工具
+    </a>
+    <div class="eyebrow">TOOLS / PX4 日志</div>
+    <h1>PX4 日志查看器</h1>
+    <p class="lead">
+      把 .ulg 拖进来，在本地解析 ULog，按 topic
+      勾选姿态、位置或执行器输出等字段。拖拽框选可以缩放，滚轮缩放，按住 Shift
+      滚轮平移，双击恢复。
+    </p>
+    <div class="gif-card">
+      <button type="button" id="drop" class="gif-drop">
+        点击选择 .ulg，或把日志拖到这里
+        <small>只在这台浏览器里解析，文件不会上传</small>
+      </button>
+      <input
+        id="file"
+        class="gif-file"
+        type="file"
+        accept=".ulg,application/octet-stream"
+      />
+    </div>
+    <div class="gif-card gif-hidden" id="editor">
+      <p id="info" class="tool-note"></p>
+      <div class="gif-field">
+        <label for="topic">Topic</label>
+        <select id="topic"></select>
+      </div>
+      <div id="fields" class="field-checks"></div>
+      <div class="gif-actions">
+        <button type="button" id="reset" class="gif-secondary">
+          恢复缩放
+        </button>
+      </div>
+      <div id="chart" class="chart-host"></div>
+      <p id="status" class="gif-status" role="status"></p>
+    </div>
+  </div>
+</SiteLayout>
+
+<script>
+  import '../../scripts/px4-log-viewer';
+</script>
