@@ -134,9 +134,15 @@ const seek = (time: number, token: number) =>
     };
     const onSeeked = () =>
       finish(() => (token === job ? resolve() : reject(new Cancelled())));
-    const onStop = () => finish(() => reject(new Cancelled()));
+    const onStop = () =>
+      finish(() =>
+        reject(token === job ? new Error('seek-emptied') : new Cancelled()),
+      );
     const timer = window.setTimeout(
-      () => finish(() => reject(new Cancelled())),
+      () =>
+        finish(() =>
+          reject(token === job ? new Error('seek-timeout') : new Cancelled()),
+        ),
       5000,
     );
     if (Math.abs(video.currentTime - time) < 0.001 && video.readyState >= 2) {
@@ -224,6 +230,7 @@ go.addEventListener('click', async () => {
     status.textContent = '完成！';
   } catch (error) {
     if (token === job && !(error instanceof Cancelled)) {
+      bar.classList.add('gif-hidden');
       status.textContent = '生成中断了，请再试一次';
     }
   } finally {
