@@ -914,8 +914,18 @@ p {
   .hero-actions .text-link {
     font-size: 12px;
   }
+  .nav-shell {
+    flex-wrap: wrap;
+  }
   .header nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
     gap: 4px;
+    overflow: auto;
+  }
+  .contact-nav {
+    margin-left: auto;
   }
   .research-grid,
   .project-grid {
@@ -1338,7 +1348,7 @@ p {
   margin-top: 12px;
   margin-right: 8px;
 }
-@media (max-width: 1180px) and (min-width: 821px) {
+@media (max-width: 1180px) and (min-width: 961px) {
   .nav-shell {
     gap: 14px;
   }
