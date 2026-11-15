@@ -1,0 +1,21 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { tools } from '../../data/tools';
+---
+
+<SiteLayout
+  title="小工具"
+  description="在浏览器里运行的小工具。视频转 GIF 等处理都在本地完成，文件不会上传。"
+>
+  <div class="container page">
+    <div class="eyebrow">TOOLS / 小工具</div>
+    <h1>随手可用的小工具。</h1>
+    <p class="lead">这些工具在浏览器里运行，文件留在本地，不会上传。</p>
+    <div class="project-grid">
+      {tools.map((tool, index) => (
+        <ToolCard tool={tool} index={index} />
+      ))}
+    </div>
+  </div>
+</SiteLayout>

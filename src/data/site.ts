@@ -40,6 +40,7 @@ export const navigation = [
   ['/ml/', '机器学习'],
   ['/blog/', '博客'],
   ['/publications/', '论文'],
+  ['/tools/', '小工具'],
 ];
 export const categories = [
   'UAV',

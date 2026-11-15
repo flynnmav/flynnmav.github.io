@@ -28,6 +28,8 @@ try {
       '/blog/mpc-notes/',
       '/blog/about-this-site/',
       '/publications/',
+      '/tools/',
+      '/tools/video-to-gif/',
       '/contact/',
     ]) {
       const response = await page.goto(base + route);
