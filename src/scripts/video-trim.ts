@@ -57,6 +57,22 @@ function tapAudio() {
   return audioTap;
 }
 
+function sourceHasAudio() {
+  const media = video as HTMLVideoElement & {
+    captureStream?: () => MediaStream;
+    mozHasAudio?: boolean;
+    audioTracks?: { length: number };
+  };
+  if (typeof media.mozHasAudio === 'boolean') return media.mozHasAudio;
+  if (media.captureStream) {
+    return media
+      .captureStream()
+      .getAudioTracks()
+      .some((track) => track.readyState !== 'ended');
+  }
+  return Boolean(media.audioTracks && media.audioTracks.length > 0);
+}
+
 function recorderMime(hasAudio: boolean) {
   const candidates = hasAudio
     ? ['video/webm;codecs=vp8,opus', 'video/webm']
@@ -217,126 +233,133 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
   };
   // Resume during the click, before seek yields and the gesture expires.
   const audioReady = strip ? Promise.resolve(false) : primeAudio();
-  return new Promise<{ blob: Blob; keptAudio: boolean }>((resolve, reject) => {
-    let settled = false;
-    let watchdog = 0;
-    let recorder: MediaRecorder | null = null;
-    let preview: GainNode | null = null;
-    const previousVolume = video.volume;
-    const chunks: Blob[] = [];
-    const stopRecorder = () => {
-      if (recorder && recorder.state !== 'inactive') recorder.stop();
-    };
-    const finish = (fn: () => void) => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(watchdog);
-      video.pause();
-      video.muted = true;
-      video.volume = previousVolume;
-      if (preview) preview.gain.value = 1;
-      fn();
-    };
-    watchdog = window.setTimeout(
-      () => {
-        finish(() => reject(new Error('录制超时')));
-        stopRecorder();
-      },
-      Math.max(8000, (end - start + 5) * 1000),
-    );
-    const draw = () => {
-      if (settled) return;
-      if (token !== job) {
-        finish(() => reject(new Cancelled()));
-        stopRecorder();
-        return;
-      }
-      ctx.drawImage(video, 0, 0, width, height);
-      const span = Math.max(end - start, 0.001);
-      barFill.style.width =
-        Math.round((Math.min(video.currentTime - start, span) / span) * 100) +
-        '%';
-      if (video.currentTime >= end || video.ended) {
-        stopRecorder();
-        return;
-      }
-      requestAnimationFrame(draw);
-    };
-    void seekTo(start, token)
-      .then(async () => {
-        if (token !== job) throw new Cancelled();
-        const running = await audioReady;
-        if (token !== job) throw new Cancelled();
-        let tap: ReturnType<typeof tapAudio> = null;
-        if (!strip && running) {
-          try {
-            tap = tapAudio();
-          } catch {
-            tap = null;
-          }
-        }
-        preview = tap?.preview ?? null;
-        if (preview) preview.gain.value = 0;
-        const tracks = [...canvasStream.getVideoTracks()];
-        if (tap) tracks.push(...tap.dest.stream.getAudioTracks());
-        else if (!strip && media.captureStream) {
-          tracks.push(
-            ...media
-              .captureStream()
-              .getAudioTracks()
-              .filter((track) => track.readyState === 'live'),
-          );
-        }
-        const keptAudio = tracks.length > canvasStream.getVideoTracks().length;
-        const mime = recorderMime(keptAudio);
-        try {
-          recorder = new MediaRecorder(
-            new MediaStream(tracks),
-            mime
-              ? {
-                  mimeType: mime,
-                  videoBitsPerSecond: bitrate,
-                  ...(keptAudio ? { audioBitsPerSecond: 96_000 } : {}),
-                }
-              : { videoBitsPerSecond: bitrate },
-          );
-        } catch (error) {
-          finish(() =>
-            reject(error instanceof Error ? error : new Error('录制失败')),
-          );
-          return;
-        }
-        recorder.ondataavailable = (event) => {
-          if (event.data.size) chunks.push(event.data);
-        };
-        recorder.onstop = () =>
-          finish(() =>
-            resolve({
-              blob: new Blob(chunks, { type: 'video/webm' }),
-              keptAudio,
-            }),
-          );
-        recorder.onerror = () => finish(() => reject(new Error('录制失败')));
-        // Play muted so Chrome still accepts play() after the seek. Unmute
-        // once playback has started: a muted element makes captureStream and
-        // the audio graph record silence.
+  return new Promise<{ blob: Blob; keptAudio: boolean; audible: boolean }>(
+    (resolve, reject) => {
+      let settled = false;
+      let watchdog = 0;
+      let recorder: MediaRecorder | null = null;
+      let preview: GainNode | null = null;
+      const previousVolume = video.volume;
+      const chunks: Blob[] = [];
+      const stopRecorder = () => {
+        if (recorder && recorder.state !== 'inactive') recorder.stop();
+      };
+      const finish = (fn: () => void) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(watchdog);
+        video.pause();
         video.muted = true;
-        if (keptAudio) video.volume = 1;
-        recorder.start(200);
-        try {
-          await video.play();
-        } catch (error) {
-          finish(() =>
-            reject(error instanceof Error ? error : new Error('无法播放视频')),
-          );
+        video.volume = previousVolume;
+        if (preview) preview.gain.value = 1;
+        fn();
+      };
+      watchdog = window.setTimeout(
+        () => {
+          finish(() => reject(new Error('录制超时')));
+          stopRecorder();
+        },
+        Math.max(8000, (end - start + 5) * 1000),
+      );
+      const draw = () => {
+        if (settled) return;
+        if (token !== job) {
+          finish(() => reject(new Cancelled()));
           stopRecorder();
           return;
         }
-        if (keptAudio) video.muted = false;
-        draw();
-      })
-      .catch((error: unknown) => finish(() => reject(error)));
-  });
+        ctx.drawImage(video, 0, 0, width, height);
+        const span = Math.max(end - start, 0.001);
+        barFill.style.width =
+          Math.round((Math.min(video.currentTime - start, span) / span) * 100) +
+          '%';
+        if (video.currentTime >= end || video.ended) {
+          stopRecorder();
+          return;
+        }
+        requestAnimationFrame(draw);
+      };
+      void seekTo(start, token)
+        .then(async () => {
+          if (token !== job) throw new Cancelled();
+          const running = await audioReady;
+          if (token !== job) throw new Cancelled();
+          const audible = !strip && sourceHasAudio();
+          let tap: ReturnType<typeof tapAudio> = null;
+          if (audible && running) {
+            try {
+              tap = tapAudio();
+            } catch {
+              tap = null;
+            }
+          }
+          preview = tap?.preview ?? null;
+          if (preview) preview.gain.value = 0;
+          const tracks = [...canvasStream.getVideoTracks()];
+          if (audible && tap) tracks.push(...tap.dest.stream.getAudioTracks());
+          else if (audible && media.captureStream) {
+            tracks.push(
+              ...media
+                .captureStream()
+                .getAudioTracks()
+                .filter((track) => track.readyState === 'live'),
+            );
+          }
+          const keptAudio =
+            audible && tracks.length > canvasStream.getVideoTracks().length;
+          const mime = recorderMime(keptAudio);
+          try {
+            recorder = new MediaRecorder(
+              new MediaStream(tracks),
+              mime
+                ? {
+                    mimeType: mime,
+                    videoBitsPerSecond: bitrate,
+                    ...(keptAudio ? { audioBitsPerSecond: 96_000 } : {}),
+                  }
+                : { videoBitsPerSecond: bitrate },
+            );
+          } catch (error) {
+            finish(() =>
+              reject(error instanceof Error ? error : new Error('录制失败')),
+            );
+            return;
+          }
+          recorder.ondataavailable = (event) => {
+            if (event.data.size) chunks.push(event.data);
+          };
+          recorder.onstop = () =>
+            finish(() =>
+              resolve({
+                blob: new Blob(chunks, { type: 'video/webm' }),
+                keptAudio,
+                audible,
+              }),
+            );
+          recorder.onerror = () => finish(() => reject(new Error('录制失败')));
+          // Play muted so Chrome still accepts play() after the seek. Unmute
+          // once playback has started: a muted element makes captureStream and
+          // the audio graph record silence.
+          video.muted = true;
+          if (keptAudio) video.volume = 1;
+          recorder.start(200);
+          try {
+            await video.play();
+          } catch (error) {
+            finish(() =>
+              reject(
+                error instanceof Error ? error : new Error('无法播放视频'),
+              ),
+            );
+            stopRecorder();
+            return;
+          }
+          if (keptAudio) video.muted = false;
+          draw();
+        })
+        .catch((error: unknown) => finish(() => reject(error)));
+    },
+  );
 }
 
 function show(blob: Blob) {
@@ -384,6 +407,7 @@ async function exportClip() {
   status.textContent = strip ? '正在本地编码，不含音轨…' : '正在按原速录制…';
   try {
     let keptAudio = false;
+    let audible = false;
     const blob = strip
       ? await encodeFast(token, start, end).catch(async (error: unknown) => {
           if (error instanceof Cancelled || token !== job) throw error;
@@ -393,6 +417,7 @@ async function exportClip() {
         })
       : await recordLive(token, start, end, false).then((clip) => {
           keptAudio = clip.keptAudio;
+          audible = clip.audible;
           return clip.blob;
         });
     if (token !== job) return;
@@ -405,7 +430,9 @@ async function exportClip() {
         ? '已去掉音轨。'
         : keptAudio
           ? '已保留音轨。'
-          : '没能保留音轨，只导出了画面。');
+          : audible
+            ? '没能保留音轨，只导出了画面。'
+            : '原视频没有音轨，只导出了画面。');
   } catch (error) {
     if (token === job && !(error instanceof Cancelled)) {
       bar.classList.add('gif-hidden');
