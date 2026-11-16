@@ -89,38 +89,71 @@ function sourceHasAudio(token: number, stopped: () => boolean) {
   if (media.mozHasAudio === false) return Promise.resolve(false);
   return new Promise<boolean>((resolve) => {
     let saw = false;
+    let done = false;
+    const duration = video.duration;
+    const ceiling = Number.isFinite(duration)
+      ? Math.max(0, duration - 0.05)
+      : Infinity;
     const onAdd = (event: MediaStreamTrackEvent) => {
       if (event.track.kind === 'audio') saw = true;
     };
-    stream?.addEventListener('addtrack', onAdd);
     const finish = (value: boolean) => {
+      if (done) return;
+      done = true;
       stream?.removeEventListener('addtrack', onAdd);
+      video.removeEventListener('ended', onEnded);
       video.pause();
       resolve(value);
     };
-    video.muted = true;
-    void video.play().then(
-      () => {
-        const deadline = performance.now() + 600;
-        const tick = () => {
-          if (stopped() || token !== job) {
-            finish(false);
-            return;
-          }
-          if (saw || audioEvidence(captureOf()) === true) {
-            finish(true);
-            return;
-          }
-          if (performance.now() >= deadline) {
-            finish(false);
-            return;
-          }
-          window.setTimeout(tick, 40);
-        };
-        tick();
-      },
-      () => finish(audioEvidence(stream) === true),
-    );
+    const onEnded = () => finish(saw || audioEvidence(captureOf()) === true);
+    stream?.addEventListener('addtrack', onAdd);
+    video.addEventListener('ended', onEnded);
+    const begin = () => {
+      if (done) return;
+      video.muted = true;
+      void video.play().then(
+        () => {
+          const deadline = performance.now() + 600;
+          const tick = () => {
+            if (done) return;
+            if (stopped() || token !== job) {
+              finish(false);
+              return;
+            }
+            const found = saw || audioEvidence(captureOf()) === true;
+            const nearEnd =
+              video.ended || (ceiling > 0 && video.currentTime >= ceiling);
+            if (found || nearEnd || performance.now() >= deadline) {
+              finish(found);
+              return;
+            }
+            window.setTimeout(tick, 40);
+          };
+          tick();
+        },
+        () => finish(audioEvidence(captureOf()) === true),
+      );
+    };
+    if (
+      Number.isFinite(duration) &&
+      ceiling > 0.2 &&
+      duration - video.currentTime < 0.2
+    ) {
+      let started = false;
+      let rewindTimer = 0;
+      const hop = () => {
+        if (started) return;
+        started = true;
+        window.clearTimeout(rewindTimer);
+        video.removeEventListener('seeked', hop);
+        begin();
+      };
+      rewindTimer = window.setTimeout(hop, 1000);
+      video.addEventListener('seeked', hop);
+      video.currentTime = Math.max(0, ceiling - 0.2);
+      return;
+    }
+    begin();
   });
 }
 
@@ -148,18 +181,25 @@ function seekTo(time: number, token: number) {
       return;
     }
     let settled = false;
+    let hop: (() => void) | null = null;
     const finish = (fn: () => void) => {
       if (settled) return;
       settled = true;
+      if (hop) video.removeEventListener('seeked', hop);
       video.removeEventListener('seeked', onReady);
+      video.removeEventListener('timeupdate', onReady);
       video.removeEventListener('loadeddata', onReady);
       video.removeEventListener('error', onStop);
       window.clearTimeout(timer);
       fn();
     };
+    const duration = Number.isFinite(video.duration) ? video.duration : time;
+    const target = Math.min(Math.max(time, 0), Math.max(duration - 0.001, 0));
     const onReady = () => {
-      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
-        finish(resolve);
+      if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
+      if (Math.abs(video.currentTime - target) > 0.05) return;
+      if (video.ended && target < duration - 0.02) return;
+      finish(resolve);
     };
     const onStop = () =>
       finish(() => reject(token === job ? new Error('seek') : new Cancelled()));
@@ -171,13 +211,26 @@ function seekTo(time: number, token: number) {
       5000,
     );
     video.addEventListener('seeked', onReady);
+    video.addEventListener('timeupdate', onReady);
     video.addEventListener('loadeddata', onReady);
     video.addEventListener('error', onStop);
-    const duration = Number.isFinite(video.duration) ? video.duration : time;
-    const target = Math.min(Math.max(time, 0), Math.max(duration - 0.001, 0));
-    if (Math.abs(video.currentTime - target) < 0.001) {
+    if (!video.ended && Math.abs(video.currentTime - target) < 0.001) {
       onReady();
       return;
+    }
+    if (video.ended && Math.abs(video.currentTime - target) < 0.02) {
+      const away =
+        target > 0.08 ? target - 0.08 : Math.min(duration, target + 0.08);
+      if (Math.abs(away - target) >= 0.03) {
+        hop = () => {
+          video.removeEventListener('seeked', hop);
+          if (settled || token !== job) return;
+          video.currentTime = target;
+        };
+        video.addEventListener('seeked', hop);
+        video.currentTime = away;
+        return;
+      }
     }
     video.currentTime = target;
   });
@@ -324,7 +377,7 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
         barFill.style.width =
           Math.round((Math.min(video.currentTime - start, span) / span) * 100) +
           '%';
-        if (video.currentTime >= end || video.ended) {
+        if (video.currentTime >= end) {
           stopRecorder();
           return;
         }
