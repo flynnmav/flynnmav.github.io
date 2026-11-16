@@ -57,20 +57,71 @@ function tapAudio() {
   return audioTap;
 }
 
-function sourceHasAudio() {
+function captureOf() {
   const media = video as HTMLVideoElement & {
     captureStream?: () => MediaStream;
+  };
+  try {
+    return media.captureStream?.() ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function audioEvidence(stream: MediaStream | null) {
+  const media = video as HTMLVideoElement & {
     mozHasAudio?: boolean;
+    webkitAudioDecodedByteCount?: number;
     audioTracks?: { length: number };
   };
   if (typeof media.mozHasAudio === 'boolean') return media.mozHasAudio;
-  if (media.captureStream) {
-    return media
-      .captureStream()
-      .getAudioTracks()
-      .some((track) => track.readyState !== 'ended');
-  }
-  return Boolean(media.audioTracks && media.audioTracks.length > 0);
+  if ((media.webkitAudioDecodedByteCount ?? 0) > 0) return true;
+  if (media.audioTracks && media.audioTracks.length > 0) return true;
+  if (stream?.getAudioTracks().some((track) => track.readyState !== 'ended'))
+    return true;
+  return null;
+}
+
+function sourceHasAudio(token: number, stopped: () => boolean) {
+  const stream = captureOf();
+  if (audioEvidence(stream) === true) return Promise.resolve(true);
+  const media = video as HTMLVideoElement & { mozHasAudio?: boolean };
+  if (media.mozHasAudio === false) return Promise.resolve(false);
+  return new Promise<boolean>((resolve) => {
+    let saw = false;
+    const onAdd = (event: MediaStreamTrackEvent) => {
+      if (event.track.kind === 'audio') saw = true;
+    };
+    stream?.addEventListener('addtrack', onAdd);
+    const finish = (value: boolean) => {
+      stream?.removeEventListener('addtrack', onAdd);
+      video.pause();
+      resolve(value);
+    };
+    video.muted = true;
+    void video.play().then(
+      () => {
+        const deadline = performance.now() + 600;
+        const tick = () => {
+          if (stopped() || token !== job) {
+            finish(false);
+            return;
+          }
+          if (saw || audioEvidence(captureOf()) === true) {
+            finish(true);
+            return;
+          }
+          if (performance.now() >= deadline) {
+            finish(false);
+            return;
+          }
+          window.setTimeout(tick, 40);
+        };
+        tick();
+      },
+      () => finish(audioEvidence(stream) === true),
+    );
+  });
 }
 
 function recorderMime(hasAudio: boolean) {
@@ -283,8 +334,12 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
         .then(async () => {
           if (token !== job) throw new Cancelled();
           const running = await audioReady;
-          if (token !== job) throw new Cancelled();
-          const audible = !strip && sourceHasAudio();
+          if (token !== job || settled) throw new Cancelled();
+          const audible = strip
+            ? false
+            : await sourceHasAudio(token, () => settled);
+          if (token !== job || settled) throw new Cancelled();
+          await seekTo(start, token);
           let tap: ReturnType<typeof tapAudio> = null;
           if (audible && running) {
             try {
