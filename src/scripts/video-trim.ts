@@ -341,6 +341,7 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
     (resolve, reject) => {
       let settled = false;
       let watchdog = 0;
+      let playbackStarted = false;
       let recorder: MediaRecorder | null = null;
       let preview: GainNode | null = null;
       const previousVolume = video.volume;
@@ -377,7 +378,7 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
         barFill.style.width =
           Math.round((Math.min(video.currentTime - start, span) / span) * 100) +
           '%';
-        if (video.currentTime >= end) {
+        if (video.currentTime >= end || (playbackStarted && video.ended)) {
           stopRecorder();
           return;
         }
@@ -453,6 +454,7 @@ function recordLive(token: number, start: number, end: number, strip: boolean) {
           recorder.start(200);
           try {
             await video.play();
+            playbackStarted = true;
           } catch (error) {
             finish(() =>
               reject(
