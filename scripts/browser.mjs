@@ -30,6 +30,11 @@ try {
       '/publications/',
       '/tools/',
       '/tools/video-to-gif/',
+      '/tools/px4-log-viewer/',
+      '/tools/pid-simulator/',
+      '/tools/coord-convert/',
+      '/tools/image-compress/',
+      '/tools/video-trim/',
       '/contact/',
     ]) {
       const response = await page.goto(base + route);

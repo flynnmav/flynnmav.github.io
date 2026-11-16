@@ -1,0 +1,139 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title="PID 阶跃响应模拟器"
+  description="调节 Kp、Ki、Kd，在浏览器里看一阶、二阶或带延迟对象的阶跃响应，并读出超调、上升时间、调节时间和稳态误差。"
+>
+  <div class="container page gif-tool">
+    <a class="text-link" href="/tools/">
+      ← 所有小工具
+    </a>
+    <div class="eyebrow">TOOLS / PID</div>
+    <h1>PID 阶跃响应模拟器</h1>
+    <p class="lead">
+      选一个被控对象，拖动 Kp、Ki、Kd。设定值在 0 时刻阶跃到
+      1，曲线在本地实时重算。微分作用在测量值上，避免阶跃瞬间的微分尖峰。
+    </p>
+    <div class="gif-card">
+      <div class="gif-grid">
+        <div class="gif-field">
+          <label for="kind">被控对象</label>
+          <select id="kind">
+            <option value="first">一阶惯性</option>
+            <option value="second" selected>
+              二阶系统
+            </option>
+            <option value="delay">一阶惯性 + 延迟</option>
+          </select>
+        </div>
+        <div class="gif-field" id="field-k">
+          <label for="k">
+            增益 K <output id="val-k">1</output>
+          </label>
+          <input id="k" type="range" min="0.1" max="5" step="0.1" value="1" />
+        </div>
+        <div class="gif-field gif-hidden" id="field-tau">
+          <label for="tau">
+            时间常数 τ（秒） <output id="val-tau">1</output>
+          </label>
+          <input
+            id="tau"
+            type="range"
+            min="0.05"
+            max="8"
+            step="0.05"
+            value="1"
+          />
+        </div>
+        <div class="gif-field" id="field-wn">
+          <label for="wn">
+            自然频率 ωn <output id="val-wn">3</output>
+          </label>
+          <input id="wn" type="range" min="0.2" max="12" step="0.1" value="3" />
+        </div>
+        <div class="gif-field" id="field-zeta">
+          <label for="zeta">
+            阻尼比 ζ <output id="val-zeta">0.25</output>
+          </label>
+          <input
+            id="zeta"
+            type="range"
+            min="0"
+            max="2"
+            step="0.01"
+            value="0.25"
+          />
+        </div>
+        <div class="gif-field gif-hidden" id="field-delay">
+          <label for="delay">
+            纯延迟（秒） <output id="val-delay">0.3</output>
+          </label>
+          <input
+            id="delay"
+            type="range"
+            min="0"
+            max="2"
+            step="0.05"
+            value="0.3"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="kp">
+            Kp <output id="val-kp">2</output>
+          </label>
+          <input id="kp" type="range" min="0" max="20" step="0.1" value="2" />
+        </div>
+        <div class="gif-field">
+          <label for="ki">
+            Ki <output id="val-ki">1</output>
+          </label>
+          <input id="ki" type="range" min="0" max="20" step="0.1" value="1" />
+        </div>
+        <div class="gif-field">
+          <label for="kd">
+            Kd <output id="val-kd">0.05</output>
+          </label>
+          <input
+            id="kd"
+            type="range"
+            min="0"
+            max="5"
+            step="0.01"
+            value="0.05"
+          />
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric">
+          <span>超调量</span>
+          <b id="overshoot">—</b>
+        </div>
+        <div class="metric">
+          <span>上升时间</span>
+          <b id="rise">—</b>
+        </div>
+        <div class="metric">
+          <span>调节时间</span>
+          <b id="settle">—</b>
+        </div>
+        <div class="metric">
+          <span>稳态误差</span>
+          <b id="ess">—</b>
+        </div>
+      </div>
+      <div class="gif-actions">
+        <button type="button" id="reset" class="gif-secondary">
+          恢复缩放
+        </button>
+      </div>
+      <div id="chart" class="chart-host"></div>
+      <p id="status" class="gif-status" role="status"></p>
+    </div>
+  </div>
+</SiteLayout>
+
+<script>
+  import '../../scripts/pid-simulator';
+</script>

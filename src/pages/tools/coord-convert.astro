@@ -1,0 +1,387 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title="坐标与姿态换算"
+  description="在浏览器里把经纬高、ECEF、NED/ENU 互转，并把四元数、ZYX 欧拉角和旋转矩阵互转。计算都在本地完成。"
+>
+  <div class="container page gif-tool">
+    <a class="text-link" href="/tools/">
+      ← 所有小工具
+    </a>
+    <div class="eyebrow">TOOLS / 坐标与姿态</div>
+    <h1>坐标与姿态换算</h1>
+    <p class="lead">
+      改完一组数，按对应的按钮换算。经纬度用
+      WGS84，单位是度；高度和地心坐标是米。姿态默认用度，四元数标量在前。
+    </p>
+
+    <div class="gif-card">
+      <h2>位置</h2>
+      <p class="tool-note">
+        ECEF 原点在地心，X 指向经度 0°、纬度 0°，Z 指向北极。NED
+        是北、东、地，ENU 是东、北、天，都相对下面的参考点。经纬高和 ECEF
+        互转不用参考点。
+      </p>
+      <div class="gif-grid">
+        <div class="gif-field">
+          <label for="lat">纬度（度）</label>
+          <input
+            id="lat"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="lon">经度（度）</label>
+          <input
+            id="lon"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="alt">椭球高（米）</label>
+          <input
+            id="alt"
+            type="number"
+            value="0"
+            step="0.01"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ecef-x">ECEF X（米）</label>
+          <input
+            id="ecef-x"
+            type="number"
+            value="6378137"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ecef-y">ECEF Y（米）</label>
+          <input
+            id="ecef-y"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ecef-z">ECEF Z（米）</label>
+          <input
+            id="ecef-z"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ned-n">NED 北（米）</label>
+          <input
+            id="ned-n"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ned-e">NED 东（米）</label>
+          <input
+            id="ned-e"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ned-d">NED 地（米）</label>
+          <input
+            id="ned-d"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="enu-e">ENU 东（米）</label>
+          <input
+            id="enu-e"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="enu-n">ENU 北（米）</label>
+          <input
+            id="enu-n"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="enu-u">ENU 天（米）</label>
+          <input
+            id="enu-u"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ref-lat">参考纬度（度）</label>
+          <input
+            id="ref-lat"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ref-lon">参考经度（度）</label>
+          <input
+            id="ref-lon"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="ref-alt">参考高度（米）</label>
+          <input
+            id="ref-alt"
+            type="number"
+            value="0"
+            step="0.01"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <div class="gif-actions">
+        <button type="button" id="from-lla" class="gif-primary">
+          从经纬高换算
+        </button>
+        <button type="button" id="from-ecef" class="gif-secondary">
+          从 ECEF 换算
+        </button>
+        <button type="button" id="from-ned" class="gif-secondary">
+          从 NED 换算
+        </button>
+        <button type="button" id="from-enu" class="gif-secondary">
+          从 ENU 换算
+        </button>
+      </div>
+    </div>
+
+    <div class="gif-card">
+      <h2>姿态</h2>
+      <p class="tool-note">
+        四元数是标量在前的 Hamilton 约定 (w, x, y,
+        z)，也可以改成标量在后，只改变四个输入的排列。欧拉角是内旋 ZYX：先绕 Z
+        偏航，再绕 Y 俯仰，再绕 X 滚转。旋转矩阵把载体系向量变到导航系，v_nav =
+        R v_body，按行填写。俯仰接近 ±90° 时，偏航和滚转不能唯一分开。
+      </p>
+      <div class="gif-grid">
+        <div class="gif-field">
+          <label for="unit">欧拉角单位</label>
+          <select id="unit">
+            <option value="deg" selected>
+              度
+            </option>
+            <option value="rad">弧度</option>
+          </select>
+        </div>
+        <div class="gif-field">
+          <label for="order">四元数顺序</label>
+          <select id="order">
+            <option value="wxyz" selected>
+              标量在前 w x y z
+            </option>
+            <option value="xyzw">标量在后 x y z w</option>
+          </select>
+        </div>
+        <div class="gif-field">
+          <label for="roll">滚转 roll</label>
+          <input
+            id="roll"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="pitch">俯仰 pitch</label>
+          <input
+            id="pitch"
+            type="number"
+            value="0"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="yaw">偏航 yaw</label>
+          <input
+            id="yaw"
+            type="number"
+            value="90"
+            step="0.001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="q0">
+            <span id="qlabel-0">w</span>
+          </label>
+          <input
+            id="q0"
+            type="number"
+            value="0.707107"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="q1">
+            <span id="qlabel-1">x</span>
+          </label>
+          <input
+            id="q1"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="q2">
+            <span id="qlabel-2">y</span>
+          </label>
+          <input
+            id="q2"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="q3">
+            <span id="qlabel-3">z</span>
+          </label>
+          <input
+            id="q3"
+            type="number"
+            value="0.707107"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <div class="gif-field">
+        <label>旋转矩阵（行优先）</label>
+        <div class="matrix">
+          <input
+            id="m00"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m01"
+            type="number"
+            value="-1"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m02"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m10"
+            type="number"
+            value="1"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m11"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m12"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m20"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m21"
+            type="number"
+            value="0"
+            step="0.000001"
+            autocomplete="off"
+          />
+          <input
+            id="m22"
+            type="number"
+            value="1"
+            step="0.000001"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <div class="gif-actions">
+        <button type="button" id="from-euler" class="gif-primary">
+          从欧拉角换算
+        </button>
+        <button type="button" id="from-quat" class="gif-secondary">
+          从四元数换算
+        </button>
+        <button type="button" id="from-matrix" class="gif-secondary">
+          从旋转矩阵换算
+        </button>
+      </div>
+      <p id="status" class="gif-status" role="status"></p>
+    </div>
+  </div>
+</SiteLayout>
+
+<script>
+  import '../../scripts/coord-convert';
+</script>

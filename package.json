@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
+    "test:logic": "node --experimental-strip-types scripts/tools-logic.test.mjs",
     "test:smoke": "node scripts/smoke.mjs",
     "test:browser": "node scripts/browser.mjs",
     "format": "prettier --write .",
@@ -24,7 +25,9 @@
     "gifenc": "^1.0.3",
     "katex": "^0.19.0",
     "rehype-katex": "^7.0.1",
-    "remark-math": "^6.0.0"
+    "remark-math": "^6.0.0",
+    "uplot": "^1.6.32",
+    "webm-muxer": "^5.1.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",

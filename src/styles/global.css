@@ -914,8 +914,18 @@ p {
   .hero-actions .text-link {
     font-size: 12px;
   }
+  .nav-shell {
+    flex-wrap: wrap;
+  }
   .header nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
     gap: 4px;
+    overflow: auto;
+  }
+  .contact-nav {
+    margin-left: auto;
   }
   .research-grid,
   .project-grid {
@@ -1338,7 +1348,128 @@ p {
   margin-top: 12px;
   margin-right: 8px;
 }
-@media (max-width: 1180px) and (min-width: 821px) {
+.gif-card h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+.gif-field select,
+.matrix input {
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--bd);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.gif-field input[type='range'] {
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+}
+.gif-field label output {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.tool-note {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.tool-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  font-weight: 700;
+}
+.gif-field .tool-check input {
+  width: auto;
+  margin: 0;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.metric {
+  background: var(--wash);
+  border: var(--bd);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.metric span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.metric b {
+  display: block;
+  margin-top: 4px;
+  font-size: 20px;
+}
+.chart-host {
+  width: 100%;
+  margin-top: 14px;
+}
+.chart-host .uplot {
+  max-width: 100%;
+}
+.field-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  max-height: 180px;
+  overflow: auto;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: var(--bd);
+  border-radius: 12px;
+  background: var(--wash);
+}
+.field-checks label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.result-list {
+  display: flex;
+  flex-direction: column;
+}
+.result-row {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: var(--bd);
+}
+.result-row:first-child {
+  border-top: 0;
+}
+.result-copy {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.result-copy strong {
+  display: block;
+}
+@media (max-width: 640px) {
+  .result-row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1180px) and (min-width: 961px) {
   .nav-shell {
     gap: 14px;
   }
