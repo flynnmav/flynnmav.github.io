@@ -8,7 +8,11 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [
     sitemap({
-      customPages: ['https://leyanliu.com/rl/', 'https://leyanliu.com/ml/'],
+      customPages: [
+        'https://leyanliu.com/rl/',
+        'https://leyanliu.com/ml/',
+        'https://leyanliu.com/rl-lab/',
+      ],
     }),
   ],
   markdown: {

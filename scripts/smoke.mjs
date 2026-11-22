@@ -6,10 +6,11 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const files = fs
   .readdirSync(root, { recursive: true })
   .filter((p) => p.endsWith('.html'));
-// public/rl 与 public/ml 是原样复制的独立教程，不套用主站页面的 SEO 约定。
+// 独立教程的路由由 JavaScript 处理，单独检查其入口与静态资源。
+const standaloneSlugs = ['rl', 'ml', 'rl-lab'];
 const sitePages = files.filter((p) => {
   const rel = p.split(path.sep).join('/');
-  return !rel.startsWith('rl/') && !rel.startsWith('ml/');
+  return !standaloneSlugs.some((slug) => rel.startsWith(slug + '/'));
 });
 let links = 0;
 for (const file of sitePages) {
@@ -110,6 +111,10 @@ function assertStandalone(slug, minAssets) {
     ),
     slug + ' canonical',
   );
+  return assets;
+}
+function assertShareCard(slug) {
+  const html = read(slug + '/index.html');
   for (const tag of [
     'property="og:title"',
     'property="og:description"',
@@ -125,13 +130,16 @@ function assertStandalone(slug, minAssets) {
   const og = fs.readFileSync(path.join(root, slug + '/og.png'));
   assert.equal(og.readUInt32BE(16), 1200, slug + ' og width');
   assert.equal(og.readUInt32BE(20), 630, slug + ' og height');
-  return assets;
 }
 const rlAssets = assertStandalone('rl', 12);
 const mlAssets = assertStandalone('ml', 8);
+const rlLabAssets = assertStandalone('rl-lab', 9);
+assertShareCard('rl');
+assertShareCard('ml');
 assert.equal(read('CNAME').trim(), 'leyanliu.com', 'CNAME');
 assert.match(read('index.html'), /href="\/rl\/"/, 'nav link');
 assert.match(read('index.html'), /href="\/ml\/"/, 'nav ml');
+assert.match(read('index.html'), /href="\/rl-lab\/"/, 'RL lab homepage link');
 assert.match(read('index.html'), /href="\/tools\/"/, 'nav tools');
 assert.match(read('projects/rl/index.html'), /href="\/rl\/"/, 'project link');
 assert.match(
@@ -143,6 +151,11 @@ assert.match(
   read('sitemap-0.xml'),
   /https:\/\/leyanliu\.com\/ml\//,
   'sitemap ml',
+);
+assert.match(
+  read('sitemap-0.xml'),
+  /https:\/\/leyanliu\.com\/rl-lab\//,
+  'sitemap RL lab',
 );
 assert.match(
   read('sitemap-0.xml'),
@@ -175,6 +188,7 @@ console.log(
       standaloneMl: 'ml/index.html',
       rlAssets,
       mlAssets,
+      rlLabAssets,
       internalLinksAndAssets: links,
       math: 'inline + display passed',
       seo: true,

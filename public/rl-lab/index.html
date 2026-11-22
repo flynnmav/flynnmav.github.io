@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="用交互网格、可调参数实验和逐步公式推导系统学习强化学习。">
+  <meta name="theme-color" content="#ffffff">
+  <title>强化学习图解实验室</title>
+  <link rel="canonical" href="https://leyanliu.com/rl-lab/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="强化学习图解实验室">
+  <meta property="og:url" content="https://leyanliu.com/rl-lab/">
+  <meta property="og:description" content="16 章、90 步联动推导。边看图解边手算强化学习。">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./vendor/katex/katex.min.js"></script>
+  <script defer src="./content.js"></script>
+  <script defer src="./models.js"></script>
+  <script defer src="./derivations.js"></script>
+  <script defer src="./walkthrough-chapters.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-logo" viewBox="0 0 24 24"><path d="M3 15l5-5 4 3 6-7M15 6h3v3M5 19h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="5.8"/><path d="m15 15 4 4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6a8 8 0 0 0-8-1v13a8 8 0 0 1 8 1 8 8 0 0 1 8-1V5a8 8 0 0 0-8 1v13"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M5 11a7 7 0 1 1 1 5M5 5v6h6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4m0 1h13l-2.5 4L18 13H5"/></symbol>
+  </svg>
+  <aside class="sidebar" id="sidebar" aria-label="课程目录">
+    <a class="brand" href="#home">
+      <span class="brand-mark"><svg><use href="#i-logo"></use></svg></span>
+      <span><strong>强化学习图解实验室</strong><small>RL VISUAL LAB</small></span>
+    </a>
+    <div class="sidebar-scroll">
+      <nav id="course-nav" aria-label="课程路线"></nav>
+    </div>
+    <div class="sidebar-foot">
+      <div><span>学习进度</span><strong id="progress-text">0 / 16 章</strong></div>
+      <progress id="course-progress" max="16" value="0" aria-label="学习进度"></progress>
+    </div>
+  </aside>
+  <button class="veil" id="veil" type="button" aria-label="关闭目录" hidden></button>
+  <header class="topbar">
+    <div class="crumb">
+      <button class="icon-button mobile-menu" id="menu-button" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="打开目录"><svg><use href="#i-menu"></use></svg></button>
+      <span class="crumb-root">强化学习</span><span class="slash">/</span><span id="crumb-current">课程概览</span>
+    </div>
+    <div class="top-actions">
+      <a href="#lab" class="top-lab"><svg><use href="#i-grid"></use></svg>交互实验</a>
+      <button class="search-button" type="button" id="open-search"><svg><use href="#i-search"></use></svg><span>搜索概念</span><kbd>/</kbd></button>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <dialog id="search-dialog" aria-label="搜索章节">
+    <div class="search-field"><svg><use href="#i-search"></use></svg><input id="search-input" type="search" placeholder="搜索 Bellman、PPO、价值函数…" aria-label="搜索关键词" autocomplete="off"><button class="icon-button" type="button" id="close-search" aria-label="关闭搜索"><svg><use href="#i-close"></use></svg></button></div>
+    <div id="search-results"></div>
+  </dialog>
+  <noscript><p class="noscript">请启用 JavaScript 以查看课程、公式和互动实验。</p></noscript>
+</body>
+</html>
