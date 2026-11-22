@@ -1,0 +1,93 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+  title="图片压缩与格式转换"
+  description="在浏览器里把 PNG、JPG、WebP 互转，调整质量和尺寸，也可以缩放和抽帧压缩 GIF。文件不会上传。"
+>
+  <div class="container page gif-tool">
+    <a class="text-link" href="/tools/">
+      ← 所有小工具
+    </a>
+    <div class="eyebrow">TOOLS / 图片</div>
+    <h1>图片压缩与格式转换</h1>
+    <p class="lead">
+      PNG、JPG、WebP 可以互转，也能改质量和最长边。GIF
+      会按比例缩放，并可以隔帧保留；导出成静态格式时使用第一帧。全部在本地完成。
+    </p>
+    <div class="gif-card">
+      <button type="button" id="drop" class="gif-drop">
+        点击选择图片，或把图片拖到这里
+        <small>可以一次选多张。支持 PNG、JPG、WebP，GIF 会尽量保留动画</small>
+      </button>
+      <input id="file" class="gif-file" type="file" accept="image/*" multiple />
+      <div class="gif-grid">
+        <div class="gif-field">
+          <label for="format">输出格式</label>
+          <select id="format">
+            <option value="image/webp" selected>
+              WebP
+            </option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/png">PNG</option>
+            <option value="image/gif">GIF</option>
+          </select>
+        </div>
+        <div class="gif-field">
+          <label for="quality">
+            质量 <output id="val-quality">0.80</output>
+          </label>
+          <input
+            id="quality"
+            type="range"
+            min="0.1"
+            max="1"
+            step="0.05"
+            value="0.8"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="edge">最长边（像素，0 为原尺寸）</label>
+          <input
+            id="edge"
+            type="number"
+            min="0"
+            max="8192"
+            step="1"
+            value="1600"
+          />
+        </div>
+        <div class="gif-field">
+          <label for="stride">GIF 抽帧（每隔 N 帧保留 1 帧）</label>
+          <input
+            id="stride"
+            type="number"
+            min="1"
+            max="30"
+            step="1"
+            value="1"
+          />
+        </div>
+      </div>
+      <div class="gif-actions">
+        <button type="button" id="go" class="gif-primary">
+          开始处理
+        </button>
+        <button
+          type="button"
+          id="download-all"
+          class="gif-secondary gif-hidden"
+        >
+          全部下载
+        </button>
+      </div>
+      <p id="status" class="gif-status" role="status"></p>
+      <div id="results" class="result-list"></div>
+    </div>
+  </div>
+</SiteLayout>
+
+<script>
+  import '../../scripts/image-compress';
+</script>
